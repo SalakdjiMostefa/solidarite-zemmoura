@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnteteePage from '../components/EnteteePage.astro';
+import FormBenevole from '../islands/FormBenevole';
+import { tr, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).benevole;
+---
+
+<BaseLayout title={t.titre} description={t.description} lang={lang}>
+  <EnteteePage surtitre={t.surtitre} titre={t.titre} sousTitre={lang === 'fr' ? 'كن متطوعاً' : undefined} intro={t.intro} />
+  <section class="conteneur grid grid-cols-1 gap-8 py-10 lg:grid-cols-[1fr_1.2fr]">
+    <div class="space-y-4 text-lg">
+      <h2 class="titre-section">{t.comment}</h2>
+      <ol class="space-y-3">
+        {
+          t.etapes.map((e, i) => (
+            <li class="flex gap-3">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-sable font-titre text-encre">{i + 1}</span>
+              {e}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <FormBenevole client:visible lang={lang} />
+  </section>
+</BaseLayout>

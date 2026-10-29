@@ -1,0 +1,25 @@
+---
+/** Page introuvable (bilingue : Firebase Hosting sert une seule page 404) */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Montagnes from '../components/Montagnes.astro';
+import { tr } from '../i18n';
+
+const fr = tr('fr').erreur404;
+const ar = tr('ar').erreur404;
+---
+
+<BaseLayout title={fr.meta} noindex>
+  <section class="relative overflow-hidden">
+    <div class="conteneur py-16 text-center">
+      <p class="font-titre text-7xl font-medium text-terracotta-fonce">404</p>
+      <h1 class="mt-2 text-3xl font-medium">{fr.titre}</h1>
+      <p class="mt-3 text-lg text-encre/75">{fr.texte}</p>
+      <p lang="ar" dir="rtl" class="mt-6 text-xl text-encre/70">{ar.titre}</p>
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href="/" class="btn btn-primaire">{fr.retour}</a>
+        <a href="/ar" lang="ar" class="btn btn-secondaire">{ar.retour}</a>
+      </div>
+    </div>
+    <Montagnes class="h-32" />
+  </section>
+</BaseLayout>

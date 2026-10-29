@@ -1,0 +1,31 @@
+---
+/** En-tête des pages intérieures : surtitre, titre, sous-titre dans l'autre langue (facultatif), intro */
+import DecorSaison from './DecorSaison.astro';
+import type { Lang } from '../i18n';
+
+interface Props {
+  titre: string;
+  surtitre?: string;
+  /** Rappel du titre dans l'autre langue */
+  sousTitre?: string;
+  sousLang?: Lang;
+  intro?: string;
+}
+const { titre, surtitre, sousTitre, sousLang = 'ar', intro } = Astro.props;
+---
+
+<section class="relative border-b border-sable/70">
+  <DecorSaison />
+  <div class="conteneur relative z-10 pb-10 pt-12 sm:pb-14 sm:pt-16">
+    {surtitre && <p class="surtitre">{surtitre}</p>}
+    <h1 class="text-4xl font-medium sm:text-5xl">{titre}</h1>
+    {
+      sousTitre && (
+        <p lang={sousLang} dir={sousLang === 'ar' ? 'rtl' : 'ltr'} class="mt-2 text-lg text-encre/55">
+          {sousTitre}
+        </p>
+      )
+    }
+    {intro && <p class="lead mt-4 max-w-2xl">{intro}</p>}
+  </div>
+</section>

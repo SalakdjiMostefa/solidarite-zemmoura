@@ -1,0 +1,21 @@
+---
+/**
+ * Fiche événement : /evenements/voir?id=<slug> (et /ar/…)
+ * Site statique + données Firestore côté client → une seule page qui lit l'identifiant dans l'URL.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FicheEvenement from '../islands/FicheEvenement';
+import { tr, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).fiche;
+---
+
+<BaseLayout title={t.titreDefaut} description={t.descriptionDefaut} lang={lang}>
+  <section class="conteneur py-6 sm:py-10">
+    <FicheEvenement client:load lang={lang} />
+  </section>
+</BaseLayout>

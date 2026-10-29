@@ -1,0 +1,40 @@
+---
+/** Demander de l'aide : ton discret, contact direct WhatsApp */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { DEFAULT_CONTACT } from '../config/site';
+import { tr, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).aide;
+---
+
+<BaseLayout title={t.titre} description={t.description} lang={lang}>
+  <section class="conteneur max-w-2xl py-14 text-center">
+    <svg width="96" height="96" viewBox="0 0 96 96" class="mx-auto" aria-hidden="true">
+      <path
+        d="M26 54 C26 44 36 40 42 46 L48 52 L54 46 C60 40 70 44 70 54 C70 64 48 76 48 76 C48 76 26 64 26 54 Z"
+        fill="none"
+        stroke="#A51D2B"
+        stroke-width="2"></path>
+    </svg>
+    <h1 class="mt-5 text-4xl font-medium">{t.titre}</h1>
+    {lang === 'fr' && <p lang="ar" dir="rtl" class="mt-2 text-xl text-encre/55">طلب المساعدة</p>}
+    <div class="mt-6 space-y-4 text-lg leading-relaxed text-encre/85">
+      <p>{t.p1}</p>
+      <p>{t.p2}</p>
+    </div>
+    <a
+      href={`https://wa.me/${DEFAULT_CONTACT.whatsapp}?text=${encodeURIComponent(t.message)}`}
+      class="btn btn-whatsapp mt-8 px-8"
+      target="_blank"
+      rel="noopener"
+      data-contact="whatsapp"
+    >
+      {t.bouton}
+    </a>
+    <p class="mt-4 text-sm text-encre/65">{t.langues}</p>
+  </section>
+</BaseLayout>

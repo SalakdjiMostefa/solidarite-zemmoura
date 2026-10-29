@@ -1,0 +1,12 @@
+---
+/** Espace admin : application Preact rendue uniquement côté client */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdminApp from '../../islands/admin/AdminApp';
+---
+
+<BaseLayout title="Administration" noindex admin sansBoutonDon>
+  <section class="conteneur py-6">
+    <AdminApp client:only="preact" />
+    <noscript><p class="carte p-6">L'administration nécessite JavaScript.</p></noscript>
+  </section>
+</BaseLayout>

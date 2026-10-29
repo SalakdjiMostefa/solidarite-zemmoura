@@ -1,0 +1,111 @@
+---
+/** Mentions légales et politique de confidentialité (FR / AR) */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnteteePage from '../components/EnteteePage.astro';
+import { SITE, DEFAULT_CONTACT } from '../config/site';
+import { tr, type Lang } from '../i18n';
+import { DEMO_EVENTS } from '../lib/demo-data';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).mentions;
+const email = DEFAULT_CONTACT.email;
+// Crédits des photos sous licence libre (Wikimedia Commons)
+const credits = DEMO_EVENTS.filter((e) => e.coverCredit).map((e) => ({ titre: lang === 'ar' && e.titleAr ? e.titleAr : e.title, credit: e.coverCredit! }));
+
+const C = {
+  fr: {
+    editeur: 'Éditeur du site',
+    editeurTexte: `${SITE.name}, association loi 1901 — N° RNA : ${SITE.legal.rna} · Siège : ${SITE.legal.address} · Directeur de la publication : ${SITE.legal.president}`,
+    hebergement: 'Hébergement',
+    hebergementTexte:
+      'Firebase Hosting — Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irlande. Données stockées dans Cloud Firestore (Google Cloud). Photos hébergées par Cloudinary Ltd.',
+    realisation: 'Réalisation',
+    realisationTexte: `Site réalisé par ${SITE.author}.`,
+    confidentialite: 'Politique de confidentialité',
+    points: [
+      "Aucun cookie publicitaire ni traceur tiers n'est utilisé. Aucune mesure d'audience nominative.",
+      "Aucune donnée bancaire n'est collectée : les dons se font par virement depuis votre propre banque.",
+      'Formulaire bénévole : nom, téléphone, ville et disponibilités, utilisés uniquement pour vous recontacter. Conservés 2 ans maximum.',
+      "Déclaration de virement (facultative) : nom, montant, email et message, utilisés pour vous remercier et pour la comptabilité de l'association.",
+      "Ces données ne sont accessibles qu'aux membres habilités du bureau et ne sont jamais vendues ni partagées.",
+      `Vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant à ${email}. Vous pouvez aussi saisir la CNIL.`,
+      "Le site peut être installé comme application (PWA) : une copie des pages consultées est alors gardée sur votre appareil pour fonctionner hors connexion.",
+    ],
+    credits: 'Crédits photos',
+    creditsTexte: 'Certaines illustrations proviennent de Wikimedia Commons, sous licences Creative Commons (CC BY-SA). Merci à leurs auteurs :',
+    dignite: 'Images et dignité',
+    digniteTexte:
+      "L'association s'engage à ne jamais publier de photo permettant d'identifier un enfant ou une personne bénéficiaire. Les visages sont floutés.",
+  },
+  ar: {
+    editeur: 'ناشر الموقع',
+    editeurTexte: `جمعية تضامن زمورة، جمعية خاضعة لقانون 1901 — رقم RNA: ${SITE.legal.rna} · المقرّ: سان شامون (42400)، فرنسا · مدير النشر: ${tr('ar').association.aCompleter}`,
+    hebergement: 'الاستضافة',
+    hebergementTexte:
+      'Firebase Hosting — شركة Google Ireland Limited، دبلن، أيرلندا. البيانات محفوظة في Cloud Firestore (Google Cloud)، والصور مستضافة لدى Cloudinary.',
+    realisation: 'التصميم',
+    realisationTexte: `تصميم الموقع: ${SITE.author}.`,
+    confidentialite: 'سياسة الخصوصية',
+    points: [
+      'لا نستعمل أي ملفات تعريف ارتباط إعلانية أو أدوات تتبّع خارجية، ولا أي قياس اسمي للزيارات.',
+      'لا نجمع أي بيانات بنكية: التبرّعات تتمّ عبر التحويل من بنككم مباشرة.',
+      'استمارة التطوّع: الاسم والهاتف والمدينة وأوقات التفرّغ، تُستعمل فقط للتواصل معكم وتُحفظ لمدة أقصاها سنتان.',
+      'التصريح بالتحويل (اختياري): الاسم والمبلغ والبريد الإلكتروني والرسالة، تُستعمل لشكركم ولمحاسبة الجمعية.',
+      'لا يطّلع على هذه البيانات إلا أعضاء المكتب المخوّلون، ولا تُباع ولا تُشارك أبداً.',
+      `يمكنكم طلب الاطّلاع على بياناتكم أو تصحيحها أو حذفها بمراسلة ${email}، كما يمكنكم اللجوء إلى الهيئة الفرنسية لحماية المعطيات (CNIL).`,
+      'يمكن تثبيت الموقع كتطبيق (PWA): تُحفظ حينها نسخة من الصفحات التي زرتموها على جهازكم لتعمل دون اتصال.',
+    ],
+    credits: 'حقوق الصور',
+    creditsTexte: 'بعض الصور مأخوذة من ويكيميديا كومنز بترخيص المشاع الإبداعي (CC BY-SA). شكراً لأصحابها:',
+    dignite: 'الصور والكرامة',
+    digniteTexte: 'تلتزم الجمعية بعدم نشر أي صورة تسمح بالتعرّف على طفل أو على شخص مستفيد. يتمّ تمويه الوجوه.',
+  },
+}[lang];
+---
+
+<BaseLayout title={t.titreCourt} description={t.description} lang={lang}>
+  <EnteteePage titre={t.titre} />
+  <article class="conteneur max-w-3xl space-y-8 py-10 text-[17px] leading-relaxed [&_h2]:mb-2 [&_h2]:text-2xl [&_h2]:font-medium">
+    <section>
+      <h2>{C.editeur}</h2>
+      <p>{C.editeurTexte}</p>
+      <p class="mt-1">
+        <a class="underline" href={`mailto:${email}`} dir="ltr">{email}</a>
+      </p>
+    </section>
+    <section>
+      <h2>{C.hebergement}</h2>
+      <p>{C.hebergementTexte}</p>
+    </section>
+    <section>
+      <h2>{C.realisation}</h2>
+      <p>{C.realisationTexte}</p>
+    </section>
+    <section id="confidentialite">
+      <h2>{C.confidentialite}</h2>
+      <ul class="list-disc space-y-2 ps-6">
+        {C.points.map((p) => <li>{p}</li>)}
+      </ul>
+    </section>
+    <section>
+      <h2>{C.credits}</h2>
+      <p>{C.creditsTexte}</p>
+      <ul class="mt-2 list-disc space-y-1 ps-6 text-[15px]">
+        {
+          credits.map((c) => (
+            <li>
+              {c.titre} : <span dir="ltr">{c.credit}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+    <section>
+      <h2>{C.dignite}</h2>
+      <p>{C.digniteTexte}</p>
+    </section>
+  </article>
+</BaseLayout>

@@ -1,0 +1,82 @@
+rules_version = '2';
+
+// Règles Firestore — Solidarité Zemoura
+// Public : lit les événements publiés, stats, settings ; peut CRÉER (jamais lire) bénévoles et déclarations.
+// Admins (doc admins/{uid}) : lisent et écrivent le reste. Settings et admins : superadmin uniquement.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isSuper() {
+      return isAdmin()
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'superadmin';
+    }
+    function str(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+    function optStr(data, key, max) {
+      return !(key in data) || str(data[key], 0, max);
+    }
+
+    // ── Événements ──
+    match /events/{id} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow create, update: if isAdmin()
+        && str(request.resource.data.title, 1, 120)
+        && request.resource.data.type in ['ramadan', 'aid-fitr', 'aid-kebir', 'fin-annee', 'action-zemoura', 'sport', 'autre']
+        && request.resource.data.location in ['zemoura', 'saint-chamond', 'autre']
+        && request.resource.data.status in ['draft', 'published']
+        && request.resource.data.startAt is timestamp
+        && request.resource.data.endAt is timestamp;
+      allow delete: if isAdmin();
+    }
+
+    // ── Données publiques en lecture ──
+    match /stats/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isSuper();
+    }
+
+    // ── Formulaires publics : création seule, champs validés, taille limitée ──
+    match /volunteers/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'city', 'availability', 'message', 'createdAt'])
+        && str(request.resource.data.name, 1, 80)
+        && str(request.resource.data.phone, 6, 30)
+        && str(request.resource.data.city, 1, 80)
+        && request.resource.data.availability is list
+        && request.resource.data.availability.size() <= 10
+        && optStr(request.resource.data, 'message', 500)
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /donations_declared/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'amount', 'email', 'message', 'reference', 'createdAt'])
+        && str(request.resource.data.name, 1, 80)
+        && request.resource.data.amount is number
+        && request.resource.data.amount >= 0
+        && request.resource.data.amount <= 100000
+        && optStr(request.resource.data, 'email', 120)
+        && optStr(request.resource.data, 'message', 500)
+        && optStr(request.resource.data, 'reference', 40)
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Comptes admin ──
+    match /admins/{uid} {
+      // Chacun peut vérifier son propre statut ; les admins voient l'équipe
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isSuper();
+    }
+  }
+}

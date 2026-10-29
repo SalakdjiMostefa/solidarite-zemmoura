@@ -1,0 +1,87 @@
+---
+/**
+ * Accueil — court et calme :
+ * hero → calendrier du jour → prochains événements → le pont (avec les chiffres) → réseaux sociaux → appel au don.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Montagnes from '../components/Montagnes.astro';
+import Frise from '../components/Frise.astro';
+import DecorSaison from '../components/DecorSaison.astro';
+import PontAnime from '../islands/PontAnime';
+import ProchainsEvenements from '../islands/ProchainsEvenements';
+import Calendrier from '../islands/Calendrier';
+import ReseauxSociaux from '../components/ReseauxSociaux.astro';
+import { tr, lien, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const T = tr(lang);
+const t = T.accueil;
+const L = (p: string) => lien(p, lang);
+---
+
+<BaseLayout title={T.meta.nom} lang={lang}>
+  <!-- HERO -->
+  <section class="relative overflow-hidden">
+    <DecorSaison />
+    <div class="conteneur relative z-10 pb-28 pt-16 text-center sm:pb-36 sm:pt-24">
+      <p class="surtitre surtitre-centre">{t.surtitre}</p>
+      <h1 class="mx-auto max-w-3xl text-[2.4rem] font-medium sm:text-6xl">{t.titre}</h1>
+      <p lang={lang === 'fr' ? 'ar' : 'fr'} dir={lang === 'fr' ? 'rtl' : 'ltr'} class="mt-4 text-lg text-encre/55">{t.sousTitre}</p>
+      <p class="lead mx-auto mt-5 max-w-xl">{t.intro}</p>
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href={L('/don')} class="btn btn-don">{T.commun.donner}</a>
+        <a href={L('/evenements')} class="btn btn-secondaire">{t.nosEvenements}</a>
+      </div>
+    </div>
+    <Montagnes class="absolute inset-x-0 bottom-0 h-24 sm:h-32" />
+  </section>
+
+  <!-- CALENDRIER : aujourd'hui + prochaines dates -->
+  <section class="conteneur pt-10 sm:pt-14" aria-label={T.calendrier.aujourdhui}>
+    <Calendrier client:load lang={lang} />
+  </section>
+
+  <!-- PROCHAINS ÉVÉNEMENTS -->
+  <section class="conteneur pb-16 pt-14 sm:pb-20 sm:pt-16" aria-labelledby="t-evts">
+    <div class="mb-8 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="surtitre">{t.agenda}</p>
+        <h2 id="t-evts" class="titre-section">{t.prochains}</h2>
+      </div>
+      <a href={L('/evenements')} class="text-sm font-medium text-encre/70 underline-offset-4 hover:text-encre hover:underline">
+        {t.tous} {T.commun.fleche}
+      </a>
+    </div>
+    <ProchainsEvenements client:visible lang={lang} />
+  </section>
+
+  <!-- LE PONT + CHIFFRES -->
+  <section class="bg-pierre py-16 sm:py-20" aria-labelledby="t-pont">
+    <div class="conteneur grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_1.3fr]">
+      <div>
+        <p class="surtitre">{t.graceAVous}</p>
+        <h2 id="t-pont" class="titre-section">{t.pontTitre}</h2>
+        <p class="lead mt-4">{t.pontTexte}</p>
+        <a href={L('/realisations')} class="mt-6 inline-block text-sm font-medium text-encre/70 underline-offset-4 hover:text-encre hover:underline">
+          {t.voirRealisations} {T.commun.fleche}
+        </a>
+      </div>
+      <PontAnime client:visible lang={lang} />
+    </div>
+  </section>
+
+  <!-- RÉSEAUX SOCIAUX -->
+  <ReseauxSociaux lang={lang} />
+
+  <Frise class="conteneur" />
+
+  <!-- APPEL AU DON -->
+  <section class="conteneur py-16 text-center sm:py-20">
+    <h2 class="titre-section mx-auto max-w-2xl">{t.ctaTitre}</h2>
+    <p class="lead mx-auto mt-4 max-w-xl">{t.ctaTexte}</p>
+    <a href={L('/don')} class="btn btn-don mt-8">{t.ctaBouton}</a>
+  </section>
+</BaseLayout>

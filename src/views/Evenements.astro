@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnteteePage from '../components/EnteteePage.astro';
+import ListeEvenements from '../islands/ListeEvenements';
+import { tr, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).evenements;
+---
+
+<BaseLayout title={t.titre} description={t.description} lang={lang}>
+  <EnteteePage surtitre={t.surtitre} titre={t.titre} sousTitre={lang === 'fr' ? 'الفعاليات' : undefined} intro={t.intro} />
+  <section class="conteneur py-10">
+    <ListeEvenements client:load lang={lang} />
+  </section>
+</BaseLayout>

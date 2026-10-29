@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.astro/
+.env
+service-account.json
+.firebase/
+*.log
+
+# Clés et fichiers sensibles (ne jamais committer)
+*firebase-adminsdk*.json
+.env.*
+!.env.example
+
+# Originaux téléchargés (Wikimedia Commons) : retéléchargeables, versions optimisées dans public/
+src-assets/commons/
+
+# Système
+.DS_Store
+Thumbs.db

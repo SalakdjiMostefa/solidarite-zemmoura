@@ -1,0 +1,332 @@
+---
+/**
+ * Layout commun : <head> SEO/Open Graph (+ hreflang FR/AR), polices, en-tête + menu burger
+ * + choix de langue, bouton « Faire un don » fixe en bas (mobile), pied de page, toasts, thème saisonnier.
+ */
+import '../styles/global.css';
+import { SITE, NAV, FIREBASE_CONFIG, FIREBASE_READY, DEFAULT_CONTACT } from '../config/site';
+import { dirOf, tr, lien, cheminAutreLangue, LANGS, type Lang } from '../i18n';
+import Logo from '../components/Logo.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  lang?: Lang;
+  noindex?: boolean;
+  /** Masque le bouton don flottant (page /don, admin) */
+  sansBoutonDon?: boolean;
+  /** Mise en page minimale (admin) */
+  admin?: boolean;
+}
+
+const { title, description, image = '/og-image.png', lang = 'fr', noindex = false, sansBoutonDon = false, admin = false } = Astro.props;
+
+const t = tr(lang);
+const nom = t.meta.nom;
+const desc = description ?? t.meta.description;
+const accueilTitre = title === SITE.name || title === nom;
+const fullTitle = accueilTitre ? (lang === 'ar' ? `${nom} — ${SITE.name}` : `${SITE.name} — ${SITE.nameAr}`) : `${title} · ${nom}`;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const ogImage = new URL(image, SITE.url).href;
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pathFr = path.replace(/^\/ar(?=\/|$)/, '') || '/';
+const actif = (href: string) => (href === '/' ? pathFr === '/' : pathFr.startsWith(href));
+const autre: Lang = lang === 'fr' ? 'ar' : 'fr';
+const lienAutre = cheminAutreLangue(path, lang);
+const urlFr = new URL(pathFr, SITE.url).href;
+const urlAr = new URL(lien(pathFr, 'ar'), SITE.url).href;
+const L = (href: string) => lien(href, lang);
+
+const themeConf = { projectId: FIREBASE_CONFIG.projectId ?? '', apiKey: FIREBASE_CONFIG.apiKey ?? '', ready: FIREBASE_READY };
+const polices =
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600&display=swap';
+---
+
+<!doctype html>
+<html lang={lang} dir={dirOf(lang)}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {
+      !admin && (
+        <>
+          <link rel="alternate" hreflang="fr" href={urlFr} />
+          <link rel="alternate" hreflang="ar" href={urlAr} />
+          <link rel="alternate" hreflang="x-default" href={urlFr} />
+        </>
+      )
+    }
+    <meta name="theme-color" content="#0B8F4D" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Open Graph (aperçu WhatsApp / Facebook) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={nom} />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_DZ' : 'fr_FR'} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Polices Google (font-display: swap via &display=swap) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href={polices} />
+    <link rel="stylesheet" href={polices} />
+
+    <!-- Thème saisonnier : calcul immédiat (pas de flash), puis réglage admin via l'API REST Firestore -->
+    <script is:inline define:vars={{ themeConf }}>
+      (function () {
+        var KEY = 'sz-theme-mode';
+        function season(date) {
+          try {
+            var parts = new Intl.DateTimeFormat('fr-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric' }).formatToParts(date);
+            var d = +parts.find(function (p) { return p.type === 'day'; }).value;
+            var m = +parts.find(function (p) { return p.type === 'month'; }).value;
+            if (m === 9) return 'ramadan';
+            if ((m === 10 && d <= 3) || (m === 12 && d >= 9 && d <= 13)) return 'aid';
+          } catch (e) {}
+          var mo = date.getMonth(), da = date.getDate();
+          if ((mo === 11 && da >= 15) || (mo === 0 && da <= 5)) return 'fin-annee';
+          return '';
+        }
+        function apply(mode) {
+          var s = mode === 'off' ? '' : mode && mode !== 'auto' ? mode : season(new Date());
+          if (s) document.documentElement.setAttribute('data-season', s);
+          else document.documentElement.removeAttribute('data-season');
+        }
+        var cached = null;
+        try { cached = localStorage.getItem(KEY); } catch (e) {}
+        apply(cached || 'auto');
+        if (!themeConf.ready) return;
+        var url = 'https://firestore.googleapis.com/v1/projects/' + themeConf.projectId +
+          '/databases/(default)/documents/settings/theme?key=' + themeConf.apiKey;
+        fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (doc) {
+          var mode = doc && doc.fields && doc.fields.mode && doc.fields.mode.stringValue || 'auto';
+          try { localStorage.setItem(KEY, mode); } catch (e) {}
+          apply(mode);
+        }).catch(function () {});
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+
+  <body class:list={['flex min-h-dvh flex-col', !sansBoutonDon && !admin && 'pb-24 md:pb-0']}>
+    <a href="#contenu" class="sr-only z-50 rounded bg-white px-4 py-2 focus:not-sr-only focus:fixed focus:start-2 focus:top-2">
+      {t.commun.allerContenu}
+    </a>
+
+    <!-- En-tête : logo | navigation (≥ 1280 px) | langue · don · burger -->
+    <header class="pt-safe sticky top-0 z-40 border-b border-sable/70 bg-creme/90 backdrop-blur">
+      <div class="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-3 sm:gap-3 sm:px-6">
+        <a href={L('/')} class="shrink-0 rounded-lg" aria-label={`${nom} — ${t.commun.accueil}`}>
+          <Logo lang={lang} />
+        </a>
+        {
+          !admin && (
+            <>
+              <nav class="hidden min-w-0 flex-1 items-center justify-center xl:flex" aria-label={t.commun.menu}>
+                {NAV.filter((n) => n.href !== '/').map((n) => (
+                  <a
+                    href={L(n.href)}
+                    class:list={[
+                      'whitespace-nowrap px-2.5 py-2 text-[15px] text-encre/70 transition hover:text-encre',
+                      actif(n.href) && 'text-encre underline decoration-terracotta underline-offset-8',
+                    ]}
+                    aria-current={actif(n.href) ? 'page' : undefined}
+                  >
+                    {t.nav[n.cle]}
+                  </a>
+                ))}
+              </nav>
+              <div class="ms-auto flex shrink-0 items-center gap-1 sm:gap-2">
+                <a
+                  href={lienAutre}
+                  data-lien-langue
+                  hreflang={autre}
+                  lang={autre}
+                  class:list={[
+                    'inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-sable px-2.5 text-sm sm:px-3 text-encre/80 transition hover:border-encre hover:text-encre',
+                    autre === 'ar' && 'ar',
+                  ]}
+                  title={`${t.commun.langue} : ${LANGS[autre].label}`}
+                >
+                  <span class="sm:hidden">{LANGS[autre].court}</span>
+                  <span class="hidden sm:inline">{LANGS[autre].label}</span>
+                </a>
+                <a href={L('/don')} class="btn btn-don hidden md:inline-flex">
+                  {t.commun.donner}
+                </a>
+                <button
+                  type="button"
+                  id="burger"
+                  class="-me-1.5 inline-flex h-11 w-10 items-center justify-center rounded-full sm:w-11 xl:hidden"
+                  aria-expanded="false"
+                  aria-controls="menu-mobile"
+                  aria-label={t.commun.menu}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
+            </>
+          )
+        }
+        {
+          admin && (
+            <a href="/" class="btn btn-secondaire ms-auto min-h-11 px-4 text-sm">
+              <span aria-hidden="true">←</span> Retour au site
+            </a>
+          )
+        }
+        <slot name="entete-droite" />
+      </div>
+
+      {
+        !admin && (
+          <nav
+            id="menu-mobile"
+            class="hidden max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-sable bg-creme pb-4 xl:hidden"
+            aria-label={t.commun.menu}
+          >
+            <ul class="conteneur flex flex-col py-3">
+              {NAV.map((n) => (
+                <li>
+                  <a
+                    href={L(n.href)}
+                    class:list={[
+                      'flex min-h-12 items-center border-b border-sable/70 font-titre text-xl',
+                      actif(n.href) ? 'text-terracotta-fonce' : 'text-encre',
+                    ]}
+                    aria-current={actif(n.href) ? 'page' : undefined}
+                  >
+                    {t.nav[n.cle]}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+    </header>
+
+    <main id="contenu" class="flex-1">
+      <slot />
+    </main>
+
+    {
+      !admin && (
+        <footer class="mt-20 border-t border-sable bg-pierre">
+          <div class="conteneur grid grid-cols-1 gap-8 py-12 sm:grid-cols-[1.4fr_1fr_1fr]">
+            <div>
+              <Logo lang={lang} />
+              <p class="mt-4 max-w-xs text-sm text-encre/65">{t.pied.texte}</p>
+              <p class="mt-4 flex gap-4 text-sm">
+                <a class="text-encre/75 underline-offset-4 hover:text-encre hover:underline" href={DEFAULT_CONTACT.facebook} target="_blank" rel="noopener">
+                  Facebook
+                </a>
+                <a class="text-encre/75 underline-offset-4 hover:text-encre hover:underline" href={DEFAULT_CONTACT.youtube} target="_blank" rel="noopener">
+                  YouTube
+                </a>
+                <a class="text-encre/75 underline-offset-4 hover:text-encre hover:underline" href={DEFAULT_CONTACT.tiktok} target="_blank" rel="noopener">
+                  TikTok
+                </a>
+              </p>
+            </div>
+            <ul class="space-y-1 text-sm text-encre/75">
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/association')}>{t.nav.association}</a></li>
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/evenements')}>{t.nav.evenements}</a></li>
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/realisations')}>{t.nav.realisations}</a></li>
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/benevole')}>{t.nav.benevole}</a></li>
+            </ul>
+            <ul class="space-y-1 text-sm text-encre/75">
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/don')}>{t.nav.don}</a></li>
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/aide')}>{t.nav.aide}</a></li>
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/contact')}>{t.nav.contact}</a></li>
+              <li><a class="inline-block py-1.5 hover:text-encre" href={L('/mentions-legales')}>{t.nav.mentions}</a></li>
+            </ul>
+          </div>
+          <div class="conteneur flex flex-col items-center justify-between gap-2 border-t border-sable py-5 text-xs text-encre/55 sm:flex-row">
+            <span>© {new Date().getFullYear()} {nom} · {t.pied.loi}</span>
+            <span class="flex items-center gap-4">
+              <span>{t.pied.realise} {SITE.author}</span>
+              <a href="/admin" class="inline-flex min-h-11 items-center underline-offset-4 hover:text-encre hover:underline" rel="nofollow">
+                🔒 {t.nav.admin}
+              </a>
+            </span>
+          </div>
+        </footer>
+      )
+    }
+
+    <!-- Bouton « Faire un don » fixe en bas (mobile/tablette) -->
+    {
+      !sansBoutonDon && !admin && (
+        <div class="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-sable bg-creme/95 backdrop-blur md:hidden">
+          <div class="conteneur py-2.5">
+            <a href={L('/don')} class="btn btn-don w-full">
+              {t.commun.donner}
+            </a>
+          </div>
+        </div>
+      )
+    }
+
+    <!-- Zone de notifications accessible -->
+    <div
+      id="toasts"
+      class="pointer-events-none fixed inset-x-0 bottom-28 z-50 flex flex-col items-center gap-2 px-4 md:bottom-6"
+      role="status"
+      aria-live="polite"
+    >
+    </div>
+
+    <script>
+      // Le lien de langue garde les paramètres de la page (ex. fiche événement ?id=…)
+      document.querySelectorAll<HTMLAnchorElement>('[data-lien-langue]').forEach((a) => {
+        a.href = a.getAttribute('href') + location.search + location.hash;
+      });
+
+      // Menu burger
+      const burger = document.getElementById('burger');
+      const menu = document.getElementById('menu-mobile');
+      burger?.addEventListener('click', () => {
+        const ouvert = burger.getAttribute('aria-expanded') === 'true';
+        burger.setAttribute('aria-expanded', String(!ouvert));
+        menu?.classList.toggle('hidden', ouvert);
+        document.body.classList.toggle('overflow-hidden', !ouvert);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && burger?.getAttribute('aria-expanded') === 'true') burger.click();
+      });
+
+      // Toasts
+      const zone = document.getElementById('toasts');
+      window.addEventListener('sz:toast', (e) => {
+        const { message, kind } = (e as CustomEvent<{ message: string; kind: 'ok' | 'error' }>).detail;
+        const el = document.createElement('div');
+        el.className = `pointer-events-auto rounded-full px-5 py-3 font-semibold shadow-lg ${
+          kind === 'error' ? 'bg-grenade-fonce text-white' : 'bg-encre text-white'
+        }`;
+        el.textContent = message;
+        zone?.appendChild(el);
+        setTimeout(() => el.remove(), 2600);
+      });
+
+      // PWA : enregistrement du service worker
+      import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {});
+    </script>
+  </body>
+</html>

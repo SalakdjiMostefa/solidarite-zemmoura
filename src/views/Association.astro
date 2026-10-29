@@ -1,0 +1,136 @@
+---
+/** L'association : histoire, mission, foot solidaire, bureau, statut légal et coordonnées bancaires */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnteteePage from '../components/EnteteePage.astro';
+import Montagnes from '../components/Montagnes.astro';
+import { SITE, DEFAULT_BANK } from '../config/site';
+import { eventUrl } from '../lib/labels';
+import { tr, lien, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const T = tr(lang);
+const t = T.association;
+const initiales = ['P', 'T', 'S', 'Z'];
+---
+
+<BaseLayout title={t.titre} description={t.description} lang={lang}>
+  <EnteteePage surtitre={t.surtitre} titre={t.titre} sousTitre={lang === 'fr' ? 'من نحن' : undefined} intro={t.intro} />
+
+  <section class="conteneur grid grid-cols-1 gap-10 py-12 lg:grid-cols-2">
+    <div>
+      <h2 class="titre-section">{t.histoire}</h2>
+      <div class="mt-4 space-y-4 text-lg leading-relaxed">
+        <p>{t.histoire1}</p>
+        <p>{t.histoire2}</p>
+      </div>
+    </div>
+    <div class="relative overflow-hidden rounded-xl2 bg-pierre p-6 sm:p-8">
+      <h2 class="text-3xl font-medium">{t.lien}</h2>
+      <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div>
+          <p class="font-titre text-xl">{T.pont.stChamond}</p>
+          <p class="text-encre/70">{t.stChamondTexte}</p>
+        </div>
+        <div>
+          <p class="font-titre text-xl text-terracotta-fonce">{T.pont.zemmoura}</p>
+          <p class="text-encre/70">{t.zemmouraTexte}</p>
+        </div>
+      </div>
+      <Montagnes class="mt-6 h-16" />
+    </div>
+  </section>
+
+  <section class="bg-pierre py-12">
+    <div class="conteneur">
+      <h2 class="titre-section">{t.mission}</h2>
+      <p class="mt-3 max-w-3xl text-lg">{t.missionTexte}</p>
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        {
+          t.valeurs.map((v) => (
+            <div class="border-t border-sable pt-4">
+              <h3 class="text-xl font-medium">{v.t}</h3>
+              <p class="mt-1 text-encre/80">{v.d}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Foot solidaire -->
+  <section class="conteneur py-12" aria-labelledby="t-foot">
+    <p class="surtitre">{t.footSurtitre}</p>
+    <h2 id="t-foot" class="titre-section">{t.footTitre}</h2>
+    <p class="lead mt-4 max-w-2xl">{t.footTexte}</p>
+    <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-[1.6fr_1fr]">
+      <figure class="overflow-hidden rounded-xl2 bg-pierre">
+        <img src="/images/foot/equipe-tournoi.webp" alt={t.footAlt1} width="1600" height="648" loading="lazy" decoding="async" class="h-full w-full object-cover" />
+      </figure>
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-1">
+        <img
+          src="/images/foot/tournoi-groupe-1.webp"
+          alt={t.footAlt2}
+          width="1600"
+          height="648"
+          loading="lazy"
+          decoding="async"
+          class="aspect-[16/9] h-full w-full rounded-xl2 object-cover"
+        />
+        <img
+          src="/images/foot/tournoi-groupe-2.webp"
+          alt={t.footAlt3}
+          width="1600"
+          height="648"
+          loading="lazy"
+          decoding="async"
+          class="aspect-[16/9] h-full w-full rounded-xl2 object-cover"
+        />
+      </div>
+    </div>
+    <a
+      href={eventUrl('tournoi-foot-solidaire', lang)}
+      class="mt-5 inline-block text-sm font-medium text-encre/70 underline-offset-4 hover:text-encre hover:underline"
+    >
+      {t.footLien} {T.commun.fleche}
+    </a>
+  </section>
+
+  <section class="conteneur py-12">
+    <h2 class="titre-section">{t.bureau}</h2>
+    <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      {
+        t.roles.map((role, i) => (
+          <div class="carte p-5 text-center">
+            <div
+              class="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-sable bg-pierre font-titre text-2xl text-encre/70"
+              aria-hidden="true"
+            >
+              {initiales[i]}
+            </div>
+            <p class="mt-3 font-semibold">{t.aCompleter}</p>
+            <p class="text-sm text-encre/70">{role}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="conteneur pb-4">
+    <div class="carte p-6">
+      <h2 class="text-2xl font-medium">{t.statut}</h2>
+      <dl class="mt-3 grid gap-2 sm:grid-cols-[200px_1fr]">
+        <dt class="font-semibold">{t.forme}</dt><dd>{t.formeValeur}</dd>
+        <dt class="font-semibold">N° RNA</dt><dd dir="ltr" class="text-start">{SITE.legal.rna}</dd>
+        <dt class="font-semibold">SIRET</dt><dd>{SITE.legal.siret}</dd>
+        <dt class="font-semibold">{t.siege}</dt><dd>{lang === 'ar' ? 'سان شامون (42400)، فرنسا' : SITE.legal.address}</dd>
+        <dt class="font-semibold">{t.banque}</dt><dd>BNP Paribas</dd>
+        <dt class="font-semibold">IBAN</dt><dd class="break-all text-start font-mono text-[15px]" dir="ltr">{DEFAULT_BANK.iban}</dd>
+        <dt class="font-semibold">BIC</dt><dd class="text-start font-mono text-[15px]" dir="ltr">{DEFAULT_BANK.bic}</dd>
+      </dl>
+      <a href={lien('/don', lang)} class="btn btn-secondaire mt-5">{t.donVirement}</a>
+    </div>
+  </section>
+</BaseLayout>

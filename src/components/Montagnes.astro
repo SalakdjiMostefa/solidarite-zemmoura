@@ -1,0 +1,23 @@
+---
+/** Silhouette simple : Bibans à droite, collines du Pilat à gauche, un soleil. Décoratif. */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class={`pointer-events-none block w-full ${className}`}
+  viewBox="0 0 1440 200"
+  preserveAspectRatio="xMidYMax slice"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <circle cx="1060" cy="70" r="34" fill="#F4A300" opacity="0.85"></circle>
+  <path
+    d="M0 150 C180 110 320 120 480 140 C560 150 640 120 720 125 L840 80 L920 120 L1010 60 L1100 115 L1190 85 L1290 125 L1440 105 V200 H0 Z"
+    fill="#D9622B"
+    opacity="0.35"></path>
+  <path d="M0 175 C240 145 480 170 720 160 C960 150 1200 172 1440 158 V200 H0 Z" fill="#0B8F4D" opacity="0.55"></path>
+</svg>

@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnteteePage from '../components/EnteteePage.astro';
+import Don from '../islands/Don';
+import { tr, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).don;
+---
+
+<BaseLayout title={t.titre} description={t.description} lang={lang} sansBoutonDon>
+  <EnteteePage surtitre={t.surtitre} titre={t.titre} sousTitre={lang === 'fr' ? 'تبرّع' : undefined} intro={t.intro} />
+  <section class="conteneur py-10">
+    <Don client:load lang={lang} />
+    <p class="mt-8 text-center text-sm text-encre/65">🔒 {t.securite}</p>
+  </section>
+</BaseLayout>
