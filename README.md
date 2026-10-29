@@ -1,5 +1,8 @@
 # Solidarité Zemmoura — تضامن زمورة
 
+> 📘 **Pour gérer et redéployer le site seul, suis [DEPLOIEMENT.md](DEPLOIEMENT.md)** (guide de A à Z).
+> Site en ligne : https://solidarite-zemmoura.web.app
+
 Site web de l'association **Solidarité Zemmoura** (Saint-Chamond ⇄ Zemmoura).
 Astro + Tailwind CSS + îlots Preact, données Firebase Firestore, photos Cloudinary, hébergement Firebase Hosting (offre gratuite Spark).
 
