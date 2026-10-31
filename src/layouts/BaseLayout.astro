@@ -325,8 +325,10 @@ const polices =
         setTimeout(() => el.remove(), 2600);
       });
 
-      // PWA : enregistrement du service worker
-      import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {});
+      // PWA : enregistrement du service worker en production uniquement
+      if (import.meta.env.PROD) {
+        import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {});
+      }
     </script>
   </body>
 </html>

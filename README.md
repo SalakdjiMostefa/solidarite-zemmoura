@@ -185,7 +185,7 @@ firebase deploy --only hosting
     ├── views/              # pages écrites une fois, rendues en FR (/…) et en AR (/ar/…)
     ├── styles/global.css   # design system : tokens couleurs, typo, composants
     ├── layouts/BaseLayout.astro   # <head> SEO, en-tête, menu, bouton Don, pied de page
-    ├── components/         # SVG : frise amazighe, montagnes, logo, décors saisonniers
+    ├── components/         # SVG : frise décorative, montagnes, logo, décors saisonniers
     ├── lib/                # firebase, accès données, SEPA/EPC, thème saisonnier, Cloudinary…
     ├── islands/            # composants interactifs Preact (pont, dons, calendrier, listes…)
     │   └── admin/          # application d'administration

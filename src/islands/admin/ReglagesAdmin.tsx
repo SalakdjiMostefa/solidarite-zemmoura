@@ -86,6 +86,7 @@ function Dons() {
       <Champ id="r-titulaire" label="Titulaire du compte" value={d.holder} onInput={(v) => setD({ ...d, holder: v })} required />
       <Champ id="r-iban" label="IBAN" value={d.iban} onInput={(v) => setD({ ...d, iban: v.toUpperCase() })} required class="champ font-mono" />
       <Champ id="r-bic" label="BIC" value={d.bic} onInput={(v) => setD({ ...d, bic: v.toUpperCase() })} required class="champ font-mono" />
+      <Champ id="r-helloasso" label="Lien HelloAsso (dons par carte bancaire)" placeholder="https://www.helloasso.com/associations/..." value={d.helloAssoUrl ?? ''} onInput={(v) => setD({ ...d, helloAssoUrl: v })} />
       <label class="flex min-h-11 items-center gap-3">
         <input type="checkbox" class="h-6 w-6 accent-emerald-fonce" checked={d.taxReceipt} onChange={(e) => setD({ ...d, taxReceipt: (e.target as HTMLInputElement).checked })} />
         <span>

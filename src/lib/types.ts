@@ -57,6 +57,8 @@ export interface DonationSettings {
   bic: string;
   amounts: { value: number; impact: string; impactAr?: string }[];
   taxReceipt: boolean;
+  /** Lien vers la campagne ou le formulaire de don HelloAsso (carte bancaire) */
+  helloAssoUrl?: string;
 }
 
 export interface ContactSettings {

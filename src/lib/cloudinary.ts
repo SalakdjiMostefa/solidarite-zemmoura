@@ -1,14 +1,31 @@
 /**
  * Photos : compression dans le navigateur puis envoi vers Cloudinary (upload preset non signé).
  * Pas de Firebase Storage (offre Spark).
+ * Sécurisation côté client : contrôle strict des types MIME et limites de taille.
  */
 import imageCompression from 'browser-image-compression';
 import { CLOUDINARY } from '../config/site';
 
 export const CLOUDINARY_READY = Boolean(CLOUDINARY.cloudName && CLOUDINARY.uploadPreset);
 
+const TYPES_AUTORISES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/avif'];
+const TAILLE_MAX_ENTREE = 15 * 1024 * 1024; // 15 Mo max avant compression
+
+/** Vérifie que le fichier est une image valide avant traitement */
+export function validerImage(file: File): void {
+  if (!file) throw new Error('Aucun fichier sélectionné');
+  if (file.size > TAILLE_MAX_ENTREE) {
+    throw new Error('La taille de la photo dépasse 15 Mo. Veuillez choisir une photo plus légère.');
+  }
+  const typeOk = TYPES_AUTORISES.includes(file.type.toLowerCase()) || Boolean(file.name.match(/\.(jpe?g|png|webp|heic|heif|avif)$/i));
+  if (!typeOk) {
+    throw new Error('Format non autorisé. Seules les images (JPEG, PNG, WebP) sont acceptées.');
+  }
+}
+
 /** ~1600 px, WebP, < 300 Ko */
 export async function compresser(file: File): Promise<File> {
+  validerImage(file);
   return imageCompression(file, {
     maxWidthOrHeight: 1600,
     maxSizeMB: 0.3,
@@ -20,6 +37,8 @@ export async function compresser(file: File): Promise<File> {
 
 /** Envoi avec progression (0 → 1). Renvoie l'URL sécurisée. */
 export function envoyer(file: File, onProgress: (p: number) => void): Promise<string> {
+  validerImage(file);
+
   // Mode démo : pas de compte Cloudinary → URL locale temporaire
   if (!CLOUDINARY_READY) {
     return new Promise((resolve) => {
@@ -43,8 +62,16 @@ export function envoyer(file: File, onProgress: (p: number) => void): Promise<st
     xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/image/upload`);
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
     xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText).secure_url);
-      else reject(new Error(`Cloudinary : ${xhr.status} ${xhr.responseText}`));
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          resolve(res.secure_url || res.url);
+        } catch {
+          reject(new Error('Réponse invalide du serveur d’images'));
+        }
+      } else {
+        reject(new Error(`Cloudinary : ${xhr.status} ${xhr.responseText}`));
+      }
     };
     xhr.onerror = () => reject(new Error('Réseau indisponible'));
     xhr.send(fd);

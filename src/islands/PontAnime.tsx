@@ -1,7 +1,7 @@
 /**
- * Le pont Saint-Chamond ↔ Zemmoura — version épurée.
+ * Le pont Saint-Chamond ↔ Zemmoura — version épurée et performante en CSS natif.
  * Carte au trait (France à gauche, Algérie à droite, Méditerranée au milieu),
- * une ligne courbe et de petits colis qui la parcourent (GSAP MotionPath).
+ * une ligne courbe et de petits colis qui la parcourent via CSS offset-path (0 dépendance externe).
  * Les chiffres sont lus en temps réel depuis Firestore (stats/global) ;
  * à chaque nouvelle valeur, un colis supplémentaire traverse.
  */
@@ -18,67 +18,28 @@ export default function PontAnime({ lang = 'fr' }: { lang?: Lang }) {
   const p = T.pont;
   const svgRef = useRef<SVGSVGElement>(null);
   const [stats, setStats] = useState<GlobalStats | null>(null);
-  const envoyer = useRef<(() => void) | null>(null);
+  const [colisBonus, setColisBonus] = useState<number[]>([]);
   const premier = useRef(true);
 
-  // Animation GSAP (chargée à la demande)
-  useEffect(() => {
-    const reduit = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let ctx: { revert: () => void } | undefined;
-    let annule = false;
-
-    (async () => {
-      const [{ gsap }, { MotionPathPlugin }] = await Promise.all([import('gsap'), import('gsap/MotionPathPlugin')]);
-      if (annule || !svgRef.current) return;
-      gsap.registerPlugin(MotionPathPlugin);
-      const svg = svgRef.current;
-      const ligne = svg.querySelector<SVGPathElement>('.ligne-pont')!;
-      const trajet = { path: ligne, align: ligne, alignOrigin: [0.5, 0.5] as [number, number] };
-
-      ctx = gsap.context(() => {
-        // La ligne se dessine, puis deux colis la parcourent tranquillement
-        const L = ligne.getTotalLength();
-        gsap.fromTo(ligne, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: reduit ? 0 : 1.4, ease: 'power2.out' });
-        if (reduit) return;
-        svg.querySelectorAll<SVGGElement>('.colis-boucle').forEach((c, i) => {
-          gsap.to(c, {
-            motionPath: trajet,
-            duration: 6,
-            repeat: -1,
-            delay: 1.4 + i * 3,
-            ease: 'sine.inOut',
-            onStart: () => gsap.set(c, { opacity: 1 }),
-          });
-        });
-      }, svg);
-
-      // Colis supplémentaire à chaque mise à jour des chiffres
-      envoyer.current = () => {
-        if (reduit || !svgRef.current) return;
-        const modele = svgRef.current.querySelector<SVGGElement>('.colis-boucle');
-        if (!modele) return;
-        const c = modele.cloneNode(true) as SVGGElement;
-        svgRef.current.appendChild(c);
-        gsap.fromTo(c, { opacity: 1 }, { motionPath: trajet, duration: 3, ease: 'power1.inOut', onComplete: () => c.remove() });
-      };
-    })();
-
-    return () => {
-      annule = true;
-      ctx?.revert();
-    };
-  }, []);
-
-  // Chiffres en temps réel
+  // Chiffres en temps réel + animation de nouveau colis à chaque don
   useEffect(
     () =>
       watchStats((s) => {
         setStats(s);
-        if (premier.current) premier.current = false;
-        else envoyer.current?.();
+        if (premier.current) {
+          premier.current = false;
+        } else {
+          // Ajoute un colis éphémère lors d'une mise à jour de stats
+          const id = Date.now();
+          setColisBonus((prev) => [...prev, id]);
+        }
       }),
     [],
   );
+
+  const retirerBonus = (id: number) => {
+    setColisBonus((prev) => prev.filter((item) => item !== id));
+  };
 
   const chiffres: [string, string][] = stats
     ? [
@@ -91,6 +52,59 @@ export default function PontAnime({ lang = 'fr' }: { lang?: Lang }) {
 
   return (
     <figure class="carte p-5 sm:p-7">
+      <style>{`
+        .pont-ligne-trace {
+          stroke-dasharray: 260;
+          stroke-dashoffset: 260;
+          animation: animerTracePont 1.4s ease-out forwards;
+        }
+        @keyframes animerTracePont {
+          to { stroke-dashoffset: 0; }
+        }
+        .pont-colis-base {
+          offset-path: path('${CHEMIN}');
+          offset-rotate: 0deg;
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: animerTrajetColis 6s ease-in-out infinite;
+          opacity: 0;
+        }
+        .pont-colis-1 {
+          animation-delay: 1.4s;
+        }
+        .pont-colis-2 {
+          animation-delay: 4.4s;
+        }
+        .pont-colis-bonus {
+          offset-path: path('${CHEMIN}');
+          offset-rotate: 0deg;
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: animerTrajetBonus 3s ease-in-out forwards;
+        }
+        @keyframes animerTrajetColis {
+          0% { offset-distance: 0%; opacity: 0; }
+          6% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { offset-distance: 100%; opacity: 0; }
+        }
+        @keyframes animerTrajetBonus {
+          0% { offset-distance: 0%; opacity: 0; transform: scale(0.8); }
+          10% { opacity: 1; transform: scale(1.3); }
+          85% { opacity: 1; transform: scale(1.1); }
+          100% { offset-distance: 100%; opacity: 0; transform: scale(0.8); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .pont-ligne-trace {
+            stroke-dashoffset: 0 !important;
+            animation: none !important;
+          }
+          .pont-colis-base, .pont-colis-bonus {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <svg ref={svgRef} viewBox="0 0 410 210" class="w-full" role="img" aria-labelledby="pont-titre">
         <title id="pont-titre">{p.titre}</title>
         {/* Pays au trait */}
@@ -110,7 +124,7 @@ export default function PontAnime({ lang = 'fr' }: { lang?: Lang }) {
 
         {/* Ligne */}
         <path d={CHEMIN} fill="none" stroke="#1F1B18" stroke-opacity="0.08" stroke-width="1" stroke-dasharray="3 4" />
-        <path class="ligne-pont" d={CHEMIN} fill="none" stroke="#D9622B" stroke-width="1.6" stroke-linecap="round" />
+        <path class="pont-ligne-trace" d={CHEMIN} fill="none" stroke="#D9622B" stroke-width="1.6" stroke-linecap="round" />
 
         {/* Villes */}
         <circle cx="92" cy="112" r="4" fill="#1F1B18" />
@@ -122,10 +136,18 @@ export default function PontAnime({ lang = 'fr' }: { lang?: Lang }) {
           {p.zemmoura}
         </text>
 
-        {/* Colis */}
-        {[0, 1].map(() => (
-          <g class="colis-boucle" opacity="0">
-            <rect x="-5" y="-4" width="10" height="8" rx="1.5" fill="#F4A300" />
+        {/* Colis animés en boucle en CSS natif */}
+        <g class="pont-colis-base pont-colis-1">
+          <rect x="-5" y="-4" width="10" height="8" rx="1.5" fill="#F4A300" />
+        </g>
+        <g class="pont-colis-base pont-colis-2">
+          <rect x="-5" y="-4" width="10" height="8" rx="1.5" fill="#F4A300" />
+        </g>
+
+        {/* Colis éphémères déclenchés lors d'une mise à jour */}
+        {colisBonus.map((id) => (
+          <g key={id} class="pont-colis-bonus" onAnimationEnd={() => retirerBonus(id)}>
+            <rect x="-6" y="-5" width="12" height="10" rx="2" fill="#E63946" />
           </g>
         ))}
       </svg>

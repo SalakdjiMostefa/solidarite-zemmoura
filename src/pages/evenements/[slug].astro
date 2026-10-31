@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FicheEvenement from '../../islands/FicheEvenement';
+import { DEMO_EVENTS } from '../../lib/demo-data';
+import { titreEv, descEv } from '../../lib/contenu';
+import type { AssoEvent } from '../../lib/types';
+
+export async function getStaticPaths() {
+  return DEMO_EVENTS.map((event) => ({
+    params: { slug: event.slug },
+    props: { event },
+  }));
+}
+
+interface Props {
+  event: AssoEvent;
+}
+
+const { event } = Astro.props;
+const lang = 'fr';
+const titre = titreEv(event, lang);
+const desc = descEv(event, lang);
+const image = event.coverImage || '/og-image.png';
+---
+
+<BaseLayout title={titre.texte} description={desc.texte.slice(0, 160)} image={image} lang={lang}>
+  <section class="conteneur py-6 sm:py-10">
+    <FicheEvenement client:load lang={lang} slug={event.slug} initialEvent={event} />
+  </section>
+</BaseLayout>

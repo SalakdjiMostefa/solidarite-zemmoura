@@ -66,8 +66,8 @@ export function autoDonationRef(type: EventType, startAt: number): string {
   return map[type];
 }
 
-/** URL publique et partageable d'une fiche événement */
-export const eventUrl = (slug: string, lang: Lang = 'fr') => `${lien('/evenements/voir', lang)}?id=${encodeURIComponent(slug)}`;
+/** URL publique et partageable d'une fiche événement (SEO et Open Graph) */
+export const eventUrl = (slug: string, lang: Lang = 'fr') => lien(`/evenements/${encodeURIComponent(slug)}`, lang);
 
 /** Optimisation d'URL Cloudinary (format/qualité auto + largeur) */
 export function cld(url: string | undefined, width = 800): string {

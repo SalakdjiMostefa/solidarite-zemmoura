@@ -14,25 +14,39 @@ import { Illustration } from './ui/Illustration';
 import { Carrousel } from './ui/Carrousel';
 import { EtatVide } from './ui/EventCard';
 
-export default function FicheEvenement({ lang = 'fr' }: { lang?: Lang }) {
+export default function FicheEvenement({
+  lang = 'fr',
+  slug,
+  initialEvent,
+}: {
+  lang?: Lang;
+  slug?: string;
+  initialEvent?: AssoEvent;
+}) {
   const T = tr(lang);
   const t = T.fiche;
-  const [ev, setEv] = useState<AssoEvent | null | undefined>(undefined);
+  const [ev, setEv] = useState<AssoEvent | null | undefined>(initialEvent);
 
   useEffect(() => {
-    const id = new URLSearchParams(location.search).get('id');
-    if (!id) return setEv(null);
+    const id = slug || new URLSearchParams(location.search).get('id');
+    if (!id) {
+      if (!initialEvent) setEv(null);
+      return;
+    }
     getEventBySlug(id)
       .then((e) => {
-        setEv(e);
         if (e) {
-          // Titre et description dynamiques
+          setEv(e);
           document.title = `${titreEv(e, lang).texte} · ${T.meta.nom}`;
           document.querySelector('meta[name="description"]')?.setAttribute('content', descEv(e, lang).texte.slice(0, 155));
+        } else if (!initialEvent) {
+          setEv(null);
         }
       })
-      .catch(() => setEv(null));
-  }, []);
+      .catch(() => {
+        if (!initialEvent) setEv(null);
+      });
+  }, [slug]);
 
   if (ev === undefined) {
     return (
@@ -57,7 +71,8 @@ export default function FicheEvenement({ lang = 'fr' }: { lang?: Lang }) {
     );
   }
 
-  const url = new URL(eventUrl(ev.slug, lang), location.origin).href;
+  const origin = typeof location !== 'undefined' ? location.origin : 'https://solidarite-zemoura.web.app';
+  const url = new URL(eventUrl(ev.slug, lang), origin).href;
   const passe = ev.endAt < Date.now();
   const photos = [...(ev.coverImage ? [ev.coverImage] : []), ...ev.gallery];
   const ref = ev.donationRef ?? '';

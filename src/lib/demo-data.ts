@@ -196,6 +196,7 @@ export const DEMO_DONATION: DonationSettings = {
     { value: 250, impact: "250 € = un mouton pour une famille à l'Aïd al-Adha, sacrifié en votre nom", impactAr: '250 € = أضحية العيد لعائلة، تُذبح باسمكم' },
   ],
   taxReceipt: false,
+  helloAssoUrl: DEFAULT_BANK.helloAssoUrl,
 };
 
 export const DEMO_CONTACT: ContactSettings = { ...DEFAULT_CONTACT };
