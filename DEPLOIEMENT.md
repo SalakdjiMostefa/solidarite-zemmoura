@@ -4,8 +4,9 @@ Ce guide est écrit pour **ton PC Windows** et **ce projet précis**. Suis les �
 
 | Élément | Valeur |
 |---|---|
-| Site en ligne | https://solidarite-zemmoura.web.app |
-| Espace admin | https://solidarite-zemmoura.web.app/admin |
+| Site en ligne | **https://solidarite-zemmoura.fr** (l'ancienne adresse https://solidarite-zemmoura.web.app fonctionne toujours) |
+| Espace admin | https://solidarite-zemmoura.fr/admin |
+| Domaine | `solidarite-zemmoura.fr` chez **IONOS** (contrat 300546770) |
 | Projet Firebase | `solidarite-zemmoura` → https://console.firebase.google.com/project/solidarite-zemmoura |
 | Code sur GitHub | https://github.com/SalakdjiMostefa/solidarite-zemmoura |
 | Dossier sur ton PC | `C:\Users\salak\Downloads\prompte\solidarite-zemoura` |
@@ -26,7 +27,7 @@ Ce guide est écrit pour **ton PC Windows** et **ce projet précis**. Suis les �
 9. [Brancher Cloudinary (photos depuis l'admin)](#9-brancher-cloudinary-photos-depuis-ladmin)
 10. [Gérer les admins](#10-gérer-les-admins)
 11. [Les données : ce qui est dans le code, ce qui est dans Firebase](#11-les-données--ce-qui-est-dans-le-code-ce-qui-est-dans-firebase)
-12. [Brancher un nom de domaine](#12-brancher-un-nom-de-domaine)
+12. [Le nom de domaine](#12-le-nom-de-domaine-déjà-branché-)
 13. [Revenir en arrière si une mise en ligne casse le site](#13-revenir-en-arrière-si-une-mise-en-ligne-casse-le-site)
 14. [Travailler depuis un autre PC](#14-travailler-depuis-un-autre-pc)
 15. [Sécurité : les règles d'or](#15-sécurité--les-règles-dor)
@@ -153,7 +154,7 @@ Cette commande fait tout, dans l'ordre :
 2. **construit** le site dans le dossier `dist` ;
 3. **envoie** le site et les règles de sécurité sur Firebase.
 
-À la fin, tu dois voir **`Deploy complete!`** et l'adresse `https://solidarite-zemmoura.web.app`.
+À la fin, tu dois voir **`Deploy complete!`**. Le site est alors à jour sur https://solidarite-zemmoura.fr (et sur l'adresse `.web.app`).
 
 ### 6.4 Vérifier
 
@@ -238,7 +239,7 @@ Sans Cloudinary, les photos **déjà intégrées** au site s'affichent, mais **l
 ## 10. Gérer les admins
 
 **Première connexion / mot de passe oublié :**
-1. Va sur https://solidarite-zemmoura.web.app/admin.
+1. Va sur https://solidarite-zemmoura.fr/admin.
 2. Tape `solidarite.zemmourah@gmail.com` puis clique **« Mot de passe oublié ? »**.
 3. Ouvre l'e-mail reçu (regarde aussi les **spams**) et choisis le mot de passe.
 
@@ -268,19 +269,26 @@ Le guide pour les bénévoles (publier un événement, ajouter des photos…) es
 
 ---
 
-## 12. Brancher un nom de domaine
+## 12. Le nom de domaine (déjà branché ✅)
 
-1. Achète le nom (ex. `solidarite-zemmoura.fr`) chez un registraire : OVH, Gandi, IONOS… (≈ 10 €/an).
-2. Console Firebase → **Hosting** → **Ajouter un domaine personnalisé** → tape le domaine.
-3. Firebase affiche des enregistrements **TXT** puis **A** : copie-les dans la zone DNS de ton registraire.
-4. Attends (quelques minutes à 24 h). Le HTTPS s'active tout seul.
-5. Dans `.env`, change :
-   ```ini
-   PUBLIC_SITE_URL=https://solidarite-zemmoura.fr
-   ```
-   puis `npm run deploy` (pour le sitemap, le robots.txt et les aperçus WhatsApp).
+`solidarite-zemmoura.fr` est relié au site depuis le 08/11/2026. Le certificat HTTPS est gratuit et **se renouvelle tout seul** (Firebase).
 
----
+**Chez IONOS** (https://my.ionos.fr → Domaines & SSL → solidarite-zemmoura.fr → **DNS**), ces deux lignes font fonctionner le site. **Ne les supprime jamais** :
+
+| Type | Nom d'hôte | Valeur |
+|---|---|---|
+| A | `@` | `199.36.158.100` |
+| TXT | `@` | `hosting-site=solidarite-zemmoura` |
+
+Les autres lignes (MX, SPF, DKIM, `_dmarc`, `autodiscover`, `_domainconnect`) servent aux e-mails IONOS : laisse-les.
+
+⚠️ N'ajoute **jamais** de ligne **AAAA** pour `@` et n'active pas de « page de parking » ou de site IONOS sur ce domaine : le site Firebase ne serait plus joignable, et le certificat HTTPS ne pourrait plus se renouveler.
+
+**Ajouter `www.solidarite-zemmoura.fr`** (facultatif) : Firebase → Hosting → **Ajouter un domaine personnalisé** → `www.solidarite-zemmoura.fr` → coche **Rediriger** vers `solidarite-zemmoura.fr`, puis ajoute chez IONOS les lignes indiquées par Firebase, avec `www` comme nom d'hôte.
+
+**Renouvellement du domaine** : il se fait chez IONOS (contrat 300546770). Vérifie la date et le prix dans « Contrats et abonnements » pour ne pas perdre le domaine.
+
+**Si un jour l'adresse change**, modifie `PUBLIC_SITE_URL` dans `.env`, puis lance `npm run deploy`.
 
 ## 13. Revenir en arrière si une mise en ligne casse le site
 

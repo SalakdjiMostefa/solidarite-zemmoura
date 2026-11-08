@@ -7,7 +7,7 @@ import AstroPWA from '@vite-pwa/astro';
 import { loadEnv } from 'vite';
 
 const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
-const SITE_URL = env.PUBLIC_SITE_URL || 'https://solidarite-zemoura.web.app';
+const SITE_URL = env.PUBLIC_SITE_URL || 'https://solidarite-zemmoura.fr';
 
 export default defineConfig({
   site: SITE_URL,

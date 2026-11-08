@@ -12,7 +12,7 @@ export const SITE = {
   tagline: "D'une rive à l'autre",
   description:
     "Association solidaire basée à Saint-Chamond (Loire) qui agit à Zemmoura (Bordj Bou Arréridj, Algérie) : Ramadan, Aïds, fin d'année et aide aux familles.",
-  url: env.PUBLIC_SITE_URL || 'https://solidarite-zemoura.web.app',
+  url: env.PUBLIC_SITE_URL || 'https://solidarite-zemmoura.fr',
   author: 'Salakdji M',
   // Placeholders à remplacer par les vraies informations légales
   legal: {

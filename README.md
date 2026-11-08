@@ -1,7 +1,7 @@
 # Solidarité Zemmoura — تضامن زمورة
 
 > 📘 **Pour gérer et redéployer le site seul, suis [DEPLOIEMENT.md](DEPLOIEMENT.md)** (guide de A à Z).
-> Site en ligne : https://solidarite-zemmoura.web.app
+> Site en ligne : https://solidarite-zemmoura.fr
 
 Site web de l'association **Solidarité Zemmoura** (Saint-Chamond ⇄ Zemmoura).
 Astro + Tailwind CSS + îlots Preact, données Firebase Firestore, photos Cloudinary, hébergement Firebase Hosting (offre gratuite Spark).
@@ -101,7 +101,7 @@ Cloudinary sert à stocker les photos, car l'offre gratuite de Firebase n'inclut
 Copiez `.env.example` vers `.env`. Le fichier existe déjà en local, et il n'est jamais envoyé sur Git. Remplissez ensuite :
 
 ```ini
-PUBLIC_SITE_URL=https://solidarite-zemoura.web.app   # ou votre nom de domaine
+PUBLIC_SITE_URL=https://solidarite-zemmoura.fr
 
 PUBLIC_FIREBASE_API_KEY=...            # valeurs copiées à l'étape 3.4
 PUBLIC_FIREBASE_AUTH_DOMAIN=...
