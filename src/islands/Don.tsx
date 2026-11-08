@@ -14,6 +14,7 @@ import { formatEuro, typeLabel } from '../lib/labels';
 import { titreEv } from '../lib/contenu';
 import { tr, type Lang } from '../i18n';
 import FormDeclaration from './FormDeclaration';
+import { DEFAULT_BANK } from '../config/site';
 
 interface Action {
   ref: string;
@@ -87,7 +88,10 @@ export default function Don({ lang = 'fr' }: { lang?: Lang }) {
     [t.referenceLabel, ref, ref],
   ];
 
-  const helloAssoUrl = settings.helloAssoUrl || 'https://www.helloasso.com/associations/solidarite-zemmoura';
+  // Carte bancaire (HelloAsso) proposée seulement si un lien est configuré (.env ou Admin → Réglages)
+  const helloAssoUrl = settings.helloAssoUrl?.trim() || DEFAULT_BANK.helloAssoUrl;
+  const carteActive = Boolean(helloAssoUrl);
+  const modeAffiche = carteActive ? mode : 'virement';
 
   return (
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
@@ -162,9 +166,10 @@ export default function Don({ lang = 'fr' }: { lang?: Lang }) {
         <section id="paiement" class="carte scroll-mt-24 p-5 sm:p-6" aria-labelledby="t-mode">
           <h2 id="t-mode" class="text-2xl font-medium">
             <span class="me-2 text-terracotta-fonce">3.</span>
-            {t.modeDon}
+            {carteActive ? t.modeDon : t.etape3}
           </h2>
 
+          {carteActive && (
           <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
@@ -194,8 +199,9 @@ export default function Don({ lang = 'fr' }: { lang?: Lang }) {
               <span class="mt-1 text-xs text-encre/70">{t.parCarteDesc}</span>
             </button>
           </div>
+          )}
 
-          {mode === 'cb' ? (
+          {modeAffiche === 'cb' ? (
             <div class="mt-6 rounded-2xl border border-emerald-fonce/20 bg-pierre/60 p-5 text-center">
               <p class="font-medium text-encre sm:text-lg">
                 {formatEuro(montant)} · {actions.find((a) => a.ref === ref)?.label ?? ref}
@@ -211,7 +217,7 @@ export default function Don({ lang = 'fr' }: { lang?: Lang }) {
               </a>
             </div>
           ) : (
-            <div class="mt-6">
+            <div class={carteActive ? 'mt-6' : 'mt-3'}>
               <p class="text-sm text-encre/80">{t.consigne(formatEuro(montant), ref)}</p>
               <dl class="mt-4 space-y-3">
                 {lignes.map(([k, affiche, copie]) => (
@@ -234,7 +240,7 @@ export default function Don({ lang = 'fr' }: { lang?: Lang }) {
       </div>
 
       <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
-        {mode === 'virement' && (
+        {modeAffiche === 'virement' && (
           <div class="carte p-5 text-center">
             <h2 class="text-xl font-medium">{t.qrTitre}</h2>
             <p class="mt-1 text-sm text-encre/75">{t.qrTexte}</p>
@@ -245,7 +251,7 @@ export default function Don({ lang = 'fr' }: { lang?: Lang }) {
               dangerouslySetInnerHTML={{ __html: qr }}
             />
             <p class="mt-3 text-xs text-encre/60">{t.qrNote}</p>
-            <p class="mt-3 rounded-lg bg-safran-clair/40 p-2 text-xs font-medium text-encre/80">{t.aideMobile}</p>
+            {carteActive && <p class="mt-3 rounded-lg bg-safran-clair/40 p-2 text-xs font-medium text-encre/80">{t.aideMobile}</p>}
           </div>
         )}
         <FormDeclaration montant={montant} reference={ref} lang={lang} />

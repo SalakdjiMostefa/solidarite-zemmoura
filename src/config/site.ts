@@ -44,7 +44,8 @@ export const DEFAULT_BANK = {
   holder: env.PUBLIC_BANK_HOLDER || 'Association Solidarité Zemmoura',
   iban: env.PUBLIC_BANK_IBAN || 'FR76 3000 4006 5700 0101 2528 482',
   bic: env.PUBLIC_BANK_BIC || 'BNPAFRPPXXX',
-  helloAssoUrl: env.PUBLIC_HELLOASSO_URL || 'https://www.helloasso.com/associations/solidarite-zemmoura',
+  /** Lien HelloAsso (carte bancaire). Vide = option carte masquée sur la page Don */
+  helloAssoUrl: env.PUBLIC_HELLOASSO_URL || '',
 };
 
 export const DEFAULT_CONTACT = {
