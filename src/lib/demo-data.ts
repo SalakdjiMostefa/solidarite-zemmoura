@@ -5,8 +5,9 @@
  *   pour que le site soit visible dès le premier `npm run dev`.
  * Aucune photo de personne identifiable : les visuels sont des illustrations SVG.
  */
-import type { AssoEvent, ContactSettings, DonationSettings, GlobalStats, ThemeSettings } from './types';
-import { DEFAULT_BANK, DEFAULT_CONTACT } from '../config/site';
+import type { AssociationSettings, AssoEvent, ContactSettings, DonationSettings, GlobalStats, TeamSettings, ThemeSettings } from './types';
+import { DEFAULT_BANK, DEFAULT_CONTACT, SITE } from '../config/site';
+import { tr } from '../i18n';
 
 /** Date relative à aujourd'hui (jours) à une heure donnée */
 function d(days: number, hour = 18, minute = 0): number {
@@ -202,3 +203,17 @@ export const DEMO_DONATION: DonationSettings = {
 export const DEMO_CONTACT: ContactSettings = { ...DEFAULT_CONTACT };
 
 export const DEMO_THEME: ThemeSettings = { mode: 'auto' };
+
+/** Équipe vide par défaut : la page affiche alors le bureau « à compléter » */
+export const DEMO_TEAM: TeamSettings = { sections: [] };
+
+/** Textes et infos légales par défaut (tant que rien n'est saisi dans Admin → Réglages → Association) */
+export const DEMO_ASSOCIATION: AssociationSettings = {
+  histoire1: tr('fr').association.histoire1,
+  histoire2: tr('fr').association.histoire2,
+  rna: '',
+  siret: '',
+  president: '',
+  address: SITE.legal.address,
+  bankName: 'BNP Paribas',
+};

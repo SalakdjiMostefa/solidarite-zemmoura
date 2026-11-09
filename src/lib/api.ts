@@ -6,17 +6,21 @@
  */
 import { FIREBASE_READY } from '../config/site';
 import {
+  DEMO_ASSOCIATION,
   DEMO_CONTACT,
   DEMO_DONATION,
   DEMO_EVENTS,
   DEMO_STATS,
+  DEMO_TEAM,
   DEMO_THEME,
 } from './demo-data';
 import type {
+  AssociationSettings,
   AssoEvent,
   ContactSettings,
   DonationSettings,
   GlobalStats,
+  TeamSettings,
   ThemeSettings,
 } from './types';
 
@@ -76,6 +80,8 @@ export const getStats = () => getDocOr<GlobalStats>(['stats', 'global'], DEMO_ST
 export const getDonationSettings = () => getDocOr<DonationSettings>(['settings', 'donation'], DEMO_DONATION);
 export const getContactSettings = () => getDocOr<ContactSettings>(['settings', 'contact'], DEMO_CONTACT);
 export const getThemeSettings = () => getDocOr<ThemeSettings>(['settings', 'theme'], DEMO_THEME);
+export const getAssociation = () => getDocOr<AssociationSettings>(['settings', 'association'], DEMO_ASSOCIATION);
+export const getTeam = () => getDocOr<TeamSettings>(['settings', 'team'], DEMO_TEAM);
 /** Abonnement temps réel aux stats (pour le pont animé). Renvoie une fonction de désabonnement. */
 export function watchStats(cb: (s: GlobalStats) => void): () => void {
   if (!FIREBASE_READY) {

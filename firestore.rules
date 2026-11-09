@@ -45,6 +45,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isSuper();
     }
+    // Équipe (page « L'association ») : modifiable par tous les admins
+    match /settings/team {
+      allow write: if isAdmin()
+        && request.resource.data.sections is list
+        && request.resource.data.sections.size() <= 20;
+    }
 
     // ── Formulaires publics : création seule, champs validés, taille limitée ──
     match /volunteers/{id} {

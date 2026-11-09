@@ -5,15 +5,17 @@
  */
 import { FIREBASE_READY, FIREBASE_CONFIG } from '../../config/site';
 import { toEvent } from '../../lib/api';
-import { DEMO_CONTACT, DEMO_DONATION, DEMO_EVENTS, DEMO_STATS, DEMO_THEME } from '../../lib/demo-data';
+import { DEMO_ASSOCIATION, DEMO_CONTACT, DEMO_DONATION, DEMO_EVENTS, DEMO_STATS, DEMO_TEAM, DEMO_THEME } from '../../lib/demo-data';
 import { autoDonationRef, slugify } from '../../lib/labels';
 import type {
   AdminProfile,
+  AssociationSettings,
   AdminRole,
   AssoEvent,
   ContactSettings,
   DonationSettings,
   GlobalStats,
+  TeamSettings,
   ThemeSettings,
 } from '../../lib/types';
 
@@ -33,6 +35,8 @@ const mem = {
   donation: structuredClone(DEMO_DONATION),
   contact: { ...DEMO_CONTACT },
   theme: { ...DEMO_THEME },
+  team: structuredClone(DEMO_TEAM),
+  association: { ...DEMO_ASSOCIATION },
   admins: [{ uid: 'demo', email: 'demo@exemple.fr', name: 'Admin démo', role: 'superadmin' }] as AdminProfile[],
   volunteers: [
     { id: 'v1', createdAt: Date.now() - 86400000, name: 'Karim B.', phone: '+33 6 00 00 00 01', city: 'Saint-Chamond', availability: ['Week-end'] },
@@ -140,7 +144,13 @@ export async function saveEvent(input: EventInput, uid: string, id?: string): Pr
     updatedAt: fs.serverTimestamp(),
   };
   if (id) {
-    await fs.updateDoc(fs.doc(db, 'events', id), payload);
+    // Champs vidés dans le formulaire (undefined) : on les supprime vraiment du document
+    const effaces = Object.fromEntries(
+      Object.entries(input)
+        .filter(([, val]) => val === undefined)
+        .map(([k]) => [k, fs.deleteField()]),
+    );
+    await fs.updateDoc(fs.doc(db, 'events', id), { ...effaces, ...payload });
     return { ...data, id };
   }
   const ref = await fs.addDoc(fs.collection(db, 'events'), { ...payload, createdAt: fs.serverTimestamp(), createdBy: uid });
@@ -195,6 +205,8 @@ type DocMap = {
   'settings/donation': DonationSettings;
   'settings/contact': ContactSettings;
   'settings/theme': ThemeSettings;
+  'settings/team': TeamSettings;
+  'settings/association': AssociationSettings;
 };
 
 const memDocs = (): DocMap => ({
@@ -202,6 +214,8 @@ const memDocs = (): DocMap => ({
   'settings/donation': mem.donation,
   'settings/contact': mem.contact,
   'settings/theme': mem.theme,
+  'settings/team': mem.team,
+  'settings/association': mem.association,
 });
 
 export async function readDoc<K extends keyof DocMap>(path: K): Promise<DocMap[K]> {
@@ -219,6 +233,8 @@ export async function writeDoc<K extends keyof DocMap>(path: K, value: DocMap[K]
     if (path === 'settings/donation') mem.donation = value as DonationSettings;
     if (path === 'settings/contact') mem.contact = value as ContactSettings;
     if (path === 'settings/theme') mem.theme = value as ThemeSettings;
+    if (path === 'settings/team') mem.team = value as TeamSettings;
+    if (path === 'settings/association') mem.association = value as AssociationSettings;
     return pause();
   }
   const { db, fs } = await fb();

@@ -6,6 +6,26 @@ import { toast } from '../../lib/toast';
 import { deleteEvent, duplicateInput, listEvents, patchEvent, type EventInput } from './store';
 import FormEvenement from './FormEvenement';
 
+/**
+ * Action des années passées (historique) : date pré-remplie l'an dernier, déjà publiée.
+ * Elle apparaît sur la page Réalisations, dans la section de son année.
+ */
+function actionPassee(): EventInput {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 1, 0, 1);
+  d.setHours(10, 0, 0, 0);
+  return {
+    title: '',
+    type: 'action-zemoura',
+    startAt: d.getTime(),
+    endAt: d.getTime() + 3 * 3600_000,
+    location: 'zemoura',
+    description: '',
+    gallery: [],
+    status: 'published',
+  };
+}
+
 type Filtre = 'tous' | 'avenir' | 'passes' | 'brouillons';
 
 export default function EvenementsAdmin({ profil }: { profil: AdminProfile }) {
@@ -47,9 +67,14 @@ export default function EvenementsAdmin({ profil }: { profil: AdminProfile }) {
     <section>
       <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-medium">Événements</h1>
-        <button type="button" class="btn btn-don" onClick={() => setEdition({})}>
-          + Nouvel événement
-        </button>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn btn-secondaire" onClick={() => setEdition({ initial: actionPassee() })}>
+            📜 Ajouter à l'historique
+          </button>
+          <button type="button" class="btn btn-don" onClick={() => setEdition({})}>
+            + Nouvel événement
+          </button>
+        </div>
       </div>
 
       <input

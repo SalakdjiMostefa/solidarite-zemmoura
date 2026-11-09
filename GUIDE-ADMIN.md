@@ -96,6 +96,33 @@ Les photos sont **réduites automatiquement** avant l'envoi : pas d'inquiétude 
 
 ---
 
+## Ajouter une action des années passées (historique)
+
+1. Onglet **📅 Événements** → **📜 Ajouter à l'historique**.
+2. Mettez la **vraie date** de l'action (ex. 15 avril 2023 pour le Ramadan 2023), un titre, un court texte.
+3. Ajoutez le **bilan** et les photos en bas, puis **Enregistrer** (l'action est publiée directement).
+
+Dans le bloc **Bilan**, remplissez aussi :
+- **Résultat obtenu** : une phrase courte avec un chiffre (ex. *180 couffins distribués*), affichée en grand ;
+- **Familles aidées** : un nombre, additionné dans le bilan de l'année ;
+- ☑ **Grande photo de l'année** : la photo de couverture de cette action devient la photo de son année.
+
+La page **Réalisations** (« Ce que nous avons accompli ») range les actions **par année** :
+2026, 2025, 2024, 2023… L'année vient de la date de début.
+
+## Le bureau et les responsables (🤝 Bureau)
+
+Page « L'association », section équipe. Tout admin peut la modifier.
+
+1. Onglet **🤝 Bureau** → **+ Responsables en France** (ou **+ Ajouter une section** pour un autre titre).
+2. Dans la section : nom, rôle (et rôle en arabe si vous voulez), photo facultative
+   (sinon l'initiale s'affiche). **+ Ajouter un responsable** pour en mettre d'autres.
+3. Recommencez avec **+ Responsables en Algérie**.
+4. Les flèches ↑ ↓ changent l'ordre ; **Enregistrer** en bas (rien n'est publié avant).
+
+Tant qu'aucune section n'existe, le site affiche le bureau « À compléter ».
+Photo d'un responsable : seulement avec son accord.
+
 ## Messages reçus (📥)
 
 - **Virements déclarés** : les personnes qui disent avoir fait un virement. Cochez **« Virement reçu / traité »** quand vous l'avez vu sur le compte.
@@ -113,7 +140,10 @@ Les photos sont **réduites automatiquement** avant l'envoi : pas d'inquiétude 
 ## Super-admins uniquement
 
 - **⚙️ Réglages** :
-  - IBAN et BIC ;
+  - **🏛️ Association** : texte « Notre histoire » (français, arabe facultatif), N° RNA, SIRET,
+    président(e) (directeur de la publication), adresse du siège, nom de la banque.
+    Un champ vide affiche « À compléter » sur le site ;
+  - titulaire du compte (exactement comme sur le RIB), IBAN et BIC ;
   - montants proposés et leurs messages (« 25 € = un couffin ») ;
   - contacts ;
   - décor saisonnier (automatique, désactivé ou forcé).

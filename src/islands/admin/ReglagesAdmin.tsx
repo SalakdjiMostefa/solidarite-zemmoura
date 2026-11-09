@@ -1,20 +1,21 @@
 /** Admin (superadmin) — réglages : banque & dons, contacts, thème saisonnier */
 import { useEffect, useState } from 'preact/hooks';
-import type { ContactSettings, DonationSettings, ThemeSettings, ThemeMode } from '../../lib/types';
+import type { AssociationSettings, ContactSettings, DonationSettings, ThemeSettings, ThemeMode } from '../../lib/types';
 import { toast } from '../../lib/toast';
 import { seasonFor } from '../../lib/season';
 import { readDoc, writeDoc } from './store';
 
-type Section = 'dons' | 'contact' | 'theme';
+type Section = 'association' | 'dons' | 'contact' | 'theme';
 
 export default function ReglagesAdmin() {
-  const [section, setSection] = useState<Section>('dons');
+  const [section, setSection] = useState<Section>('association');
   return (
     <section>
       <h1 class="mb-4 text-2xl font-medium">Réglages</h1>
       <div class="defile-x mb-5">
         {(
           [
+            ['association', '🏛️ Association'],
             ['dons', '🏦 Banque & dons'],
             ['contact', '☎️ Contacts'],
             ['theme', '🌙 Thème'],
@@ -30,6 +31,7 @@ export default function ReglagesAdmin() {
           </button>
         ))}
       </div>
+      {section === 'association' && <Association />}
       {section === 'dons' && <Dons />}
       {section === 'contact' && <Contact />}
       {section === 'theme' && <Theme />}
@@ -75,6 +77,83 @@ function Champ({ id, label, value, onInput, ...rest }: { id: string; label: stri
   );
 }
 
+function Zone({ id, label, aide, value, onInput, ar }: { id: string; label: string; aide?: string; value: string; onInput: (v: string) => void; ar?: boolean }) {
+  return (
+    <div>
+      <label class="etiquette" for={id}>
+        {label}
+      </label>
+      <textarea
+        id={id}
+        class="champ min-h-32"
+        maxLength={2000}
+        value={value}
+        dir={ar ? 'rtl' : undefined}
+        lang={ar ? 'ar' : undefined}
+        onInput={(e) => onInput((e.target as HTMLTextAreaElement).value)}
+      />
+      {aide && <p class="mt-1 text-xs text-encre/60">{aide}</p>}
+    </div>
+  );
+}
+
+/** Textes de la page « L'association » et informations légales */
+function Association() {
+  const [a, setA] = useState<AssociationSettings | null>(null);
+  useEffect(() => {
+    readDoc('settings/association').then(setA);
+  }, []);
+  if (!a) return <p>Chargement…</p>;
+  const maj = (patch: Partial<AssociationSettings>) => setA({ ...a, ...patch });
+  return (
+    <Formulaire onSave={() => writeDoc('settings/association', a)}>
+      <p class="text-sm text-encre/70">
+        Ces informations s'affichent sur la page « L'association » et dans les mentions légales. Un champ vide affiche « À compléter ».
+      </p>
+
+      <fieldset class="space-y-3">
+        <legend class="text-lg font-medium">Notre histoire</legend>
+        <Zone id="a-h1" label="1er paragraphe" value={a.histoire1} onInput={(v) => maj({ histoire1: v })} />
+        <Zone
+          id="a-h2"
+          label="2e paragraphe"
+          aide="Date de création, fondateurs, première action… Remplacez le texte entre crochets."
+          value={a.histoire2}
+          onInput={(v) => maj({ histoire2: v })}
+        />
+        <details class="rounded-xl bg-creme p-3">
+          <summary class="min-h-11 cursor-pointer content-center text-sm font-semibold">Version arabe (facultative)</summary>
+          <p class="my-2 text-xs text-encre/60">
+            Vide = l'ancienne traduction arabe s'affiche. Si vous changez le texte français, pensez à mettre à jour l'arabe.
+          </p>
+          <div class="space-y-3">
+            <Zone id="a-h1-ar" label="الفقرة الأولى" value={a.histoire1Ar ?? ''} onInput={(v) => maj({ histoire1Ar: v })} ar />
+            <Zone id="a-h2-ar" label="الفقرة الثانية" value={a.histoire2Ar ?? ''} onInput={(v) => maj({ histoire2Ar: v })} ar />
+          </div>
+        </details>
+      </fieldset>
+
+      <fieldset class="space-y-3">
+        <legend class="text-lg font-medium">Informations légales</legend>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <Champ id="a-rna" label="N° RNA" placeholder="W421234567" value={a.rna} onInput={(v) => maj({ rna: v.toUpperCase() })} class="champ font-mono" />
+          <Champ id="a-siret" label="SIRET (facultatif)" placeholder="123 456 789 00012" value={a.siret} onInput={(v) => maj({ siret: v })} class="champ font-mono" />
+        </div>
+        <Champ
+          id="a-president"
+          label="Président(e) — directeur(trice) de la publication"
+          placeholder="Prénom Nom"
+          value={a.president}
+          onInput={(v) => maj({ president: v })}
+        />
+        <Champ id="a-adresse" label="Adresse du siège" value={a.address} onInput={(v) => maj({ address: v })} />
+        <Champ id="a-banque" label="Nom de la banque" value={a.bankName} onInput={(v) => maj({ bankName: v })} />
+        <p class="text-xs text-encre/60">Le titulaire du compte, l'IBAN et le BIC se modifient dans « 🏦 Banque & dons ».</p>
+      </fieldset>
+    </Formulaire>
+  );
+}
+
 function Dons() {
   const [d, setD] = useState<DonationSettings | null>(null);
   useEffect(() => {
@@ -83,7 +162,7 @@ function Dons() {
   if (!d) return <p>Chargement…</p>;
   return (
     <Formulaire onSave={() => writeDoc('settings/donation', d)}>
-      <Champ id="r-titulaire" label="Titulaire du compte" value={d.holder} onInput={(v) => setD({ ...d, holder: v })} required />
+      <Champ id="r-titulaire" label="Titulaire du compte (exactement comme sur le RIB)" value={d.holder} onInput={(v) => setD({ ...d, holder: v })} required />
       <Champ id="r-iban" label="IBAN" value={d.iban} onInput={(v) => setD({ ...d, iban: v.toUpperCase() })} required class="champ font-mono" />
       <Champ id="r-bic" label="BIC" value={d.bic} onInput={(v) => setD({ ...d, bic: v.toUpperCase() })} required class="champ font-mono" />
       <Champ id="r-helloasso" label="Lien HelloAsso (dons par carte bancaire)" placeholder="https://www.helloasso.com/associations/..." value={d.helloAssoUrl ?? ''} onInput={(v) => setD({ ...d, helloAssoUrl: v })} />

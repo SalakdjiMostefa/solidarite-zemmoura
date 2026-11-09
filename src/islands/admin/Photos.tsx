@@ -12,11 +12,13 @@ interface Props {
   urls: string[];
   max: number;
   onChange: (urls: string[]) => void;
+  /** Flou des visages coché par défaut (désactivé pour les portraits des responsables) */
+  flouParDefaut?: boolean;
 }
 
-export default function Photos({ titre, urls, max, onChange }: Props) {
+export default function Photos({ titre, urls, max, onChange, flouParDefaut = true }: Props) {
   const [envois, setEnvois] = useState<{ nom: string; p: number }[]>([]);
-  const [flouter, setFlouter] = useState(true);
+  const [flouter, setFlouter] = useState(flouParDefaut);
 
   async function ajouter(files: FileList | null) {
     if (!files?.length) return;

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EnteteePage from '../components/EnteteePage.astro';
-import ListeEvenements from '../islands/ListeEvenements';
+import Accomplissements from '../islands/Accomplissements';
 import ChiffresCles from '../islands/ChiffresCles';
 import { tr, type Lang } from '../i18n';
 
@@ -17,8 +17,9 @@ const t = tr(lang).realisations;
   <section class="conteneur py-10">
     <ChiffresCles client:visible lang={lang} />
   </section>
-  <section class="conteneur pb-10">
-    <h2 class="titre-section mb-6">{t.passees}</h2>
-    <ListeEvenements client:visible mode="realisations" lang={lang} />
+  <section class="conteneur max-w-4xl pb-16">
+    <h2 class="titre-section">{t.accompli}</h2>
+    <p class="lead mt-3 mb-10 max-w-2xl">{t.accompliIntro}</p>
+    <Accomplissements client:visible lang={lang} />
   </section>
 </BaseLayout>

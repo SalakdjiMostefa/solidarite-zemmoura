@@ -83,6 +83,10 @@ export default function FormEvenement({ id, initial, profil, onFermer }: Props) 
         volunteersNeeded: v.volunteersNeeded,
         volunteersCount: v.volunteersNeeded ? v.volunteersCount : undefined,
         report: v.report?.text || v.report?.photos.length ? v.report : undefined,
+        result: v.result?.trim() || undefined,
+        resultAr: v.resultAr?.trim() || undefined,
+        families: v.families,
+        yearCover: v.yearCover || undefined,
         status: v.status,
         hidden: v.hidden ?? false,
       };
@@ -127,8 +131,14 @@ export default function FormEvenement({ id, initial, profil, onFermer }: Props) 
         <button type="button" class="min-h-11 font-semibold text-emerald-fonce" onClick={() => onFermer(false)}>
           ← Retour
         </button>
-        <h1 class="text-xl font-medium">{id ? "Modifier l'événement" : 'Nouvel événement'}</h1>
+        <h1 class="text-xl font-medium">{id ? "Modifier l'événement" : passe ? 'Action passée (historique)' : 'Nouvel événement'}</h1>
       </div>
+      {!id && passe && (
+        <p class="rounded-xl bg-pierre p-3 text-sm text-encre/80">
+          📜 Choisissez la <strong>vraie date</strong> de l'action (ex. Ramadan 2023) : elle sera rangée automatiquement dans la section de son année sur
+          la page Réalisations. Ajoutez le bilan et les photos en bas.
+        </p>
+      )}
 
       <fieldset class="carte space-y-4 p-4 sm:p-5">
         <legend class="sr-only">Informations principales</legend>
@@ -326,6 +336,61 @@ export default function FormEvenement({ id, initial, profil, onFermer }: Props) 
       {(passe || v.report?.text) && (
         <fieldset class="carte space-y-4 p-4 sm:p-5">
           <legend class="px-1 text-lg font-bold">Bilan (après l'événement)</legend>
+          <div>
+            <label class="etiquette" for="f-resultat">
+              Résultat obtenu (affiché en grand sur la page Réalisations)
+            </label>
+            <input
+              id="f-resultat"
+              class="champ"
+              maxLength={80}
+              placeholder="180 couffins distribués"
+              value={v.result ?? ''}
+              onInput={(e) => maj('result', (e.target as HTMLInputElement).value)}
+            />
+            <p class="mt-1 text-xs text-encre/60">Une phrase courte avec un chiffre. Vide = le titre de l'événement s'affiche.</p>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-[1fr_200px]">
+            <div>
+              <label class="etiquette" for="f-resultat-ar">
+                Résultat en arabe (facultatif)
+              </label>
+              <input
+                id="f-resultat-ar"
+                class="champ"
+                dir="rtl"
+                lang="ar"
+                maxLength={80}
+                placeholder="توزيع 180 قفة"
+                value={v.resultAr ?? ''}
+                onInput={(e) => maj('resultAr', (e.target as HTMLInputElement).value)}
+              />
+            </div>
+            <div>
+              <label class="etiquette" for="f-familles">
+                Familles aidées
+              </label>
+              <input
+                id="f-familles"
+                class="champ"
+                inputMode="numeric"
+                placeholder="0"
+                value={v.families ?? ''}
+                onInput={(e) => maj('families', nombre((e.target as HTMLInputElement).value))}
+              />
+            </div>
+          </div>
+          {v.coverImage && (
+            <label class="flex min-h-11 items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                class="h-5 w-5 accent-emerald-fonce"
+                checked={!!v.yearCover}
+                onChange={(e) => maj('yearCover', (e.target as HTMLInputElement).checked)}
+              />
+              Utiliser la photo de couverture comme grande photo de l'année {new Date(v.startAt).getFullYear()}
+            </label>
+          )}
           <textarea
             class="champ min-h-28"
             aria-label="Texte du bilan"

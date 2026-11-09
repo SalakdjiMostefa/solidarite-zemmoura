@@ -41,6 +41,16 @@ export default function ListeEvenements({ mode = 'liste', lang = 'fr' }: { mode?
       .sort((a, b) => (onglet === 'avenir' ? a.startAt - b.startAt : b.startAt - a.startAt));
   }, [events, onglet, type, lieu]);
 
+  /** Événements passés regroupés par année (déjà triés du plus récent au plus ancien) */
+  const parAnnee = useMemo(() => {
+    const groupes = new Map<number, AssoEvent[]>();
+    for (const ev of filtres) {
+      const a = new Date(ev.startAt).getFullYear();
+      groupes.set(a, [...(groupes.get(a) ?? []), ev]);
+    }
+    return [...groupes.entries()];
+  }, [filtres]);
+
   const puce = (actif: boolean) =>
     `puce ${actif ? 'border-encre bg-encre text-white' : 'border-sable bg-white text-encre hover:border-encre/40'}`;
 
@@ -97,12 +107,33 @@ export default function ListeEvenements({ mode = 'liste', lang = 'fr' }: { mode?
 
       {erreur && <EtatVide titre={t.connexion} texte={t.connexionTexte} />}
 
-      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
-        {events === null && [0, 1, 2].map(() => <EventCardSkeleton />)}
-        {filtres.map((ev) => (
-          <EventCard ev={ev} bilan={onglet === 'passes'} lang={lang} />
-        ))}
-      </div>
+      {events === null || onglet === 'avenir' ? (
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
+          {events === null && [0, 1, 2].map(() => <EventCardSkeleton />)}
+          {filtres.map((ev) => (
+            <EventCard ev={ev} bilan={false} lang={lang} />
+          ))}
+        </div>
+      ) : (
+        // Historique : une section par année, de la plus récente à la plus ancienne
+        <div class="space-y-12" aria-live="polite">
+          {parAnnee.map(([annee, liste]) => (
+            <section aria-labelledby={`annee-${annee}`}>
+              <div class="mb-5 flex items-baseline gap-3 border-b border-sable pb-2">
+                <h3 id={`annee-${annee}`} class="font-titre text-3xl">
+                  {annee}
+                </h3>
+                <span class="text-sm text-encre/60">{t.nbActions(liste.length)}</span>
+              </div>
+              <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {liste.map((ev) => (
+                  <EventCard ev={ev} bilan lang={lang} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
       {events && filtres.length === 0 && <EtatVide titre={onglet === 'avenir' ? t.aucunAvenir : t.aucunPasse} texte={t.aucunTexte} />}
     </div>
   );

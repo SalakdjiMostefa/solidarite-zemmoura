@@ -3,7 +3,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EnteteePage from '../components/EnteteePage.astro';
 import Montagnes from '../components/Montagnes.astro';
-import { SITE, DEFAULT_BANK } from '../config/site';
+import Equipe from '../islands/Equipe';
+import { Histoire, StatutLegal } from '../islands/InfosAssociation';
 import { eventUrl } from '../lib/labels';
 import { tr, lien, type Lang } from '../i18n';
 
@@ -13,7 +14,6 @@ interface Props {
 const { lang } = Astro.props;
 const T = tr(lang);
 const t = T.association;
-const initiales = ['P', 'T', 'S', 'Z'];
 ---
 
 <BaseLayout title={t.titre} description={t.description} lang={lang}>
@@ -22,10 +22,7 @@ const initiales = ['P', 'T', 'S', 'Z'];
   <section class="conteneur grid grid-cols-1 gap-10 py-12 lg:grid-cols-2">
     <div>
       <h2 class="titre-section">{t.histoire}</h2>
-      <div class="mt-4 space-y-4 text-lg leading-relaxed">
-        <p>{t.histoire1}</p>
-        <p>{t.histoire2}</p>
-      </div>
+      <Histoire client:load lang={lang} />
     </div>
     <div class="relative overflow-hidden rounded-xl2 bg-pierre p-6 sm:p-8">
       <h2 class="text-3xl font-medium">{t.lien}</h2>
@@ -99,38 +96,10 @@ const initiales = ['P', 'T', 'S', 'Z'];
   </section>
 
   <section class="conteneur py-12">
-    <h2 class="titre-section">{t.bureau}</h2>
-    <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-      {
-        t.roles.map((role, i) => (
-          <div class="carte p-5 text-center">
-            <div
-              class="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-sable bg-pierre font-titre text-2xl text-encre/70"
-              aria-hidden="true"
-            >
-              {initiales[i]}
-            </div>
-            <p class="mt-3 font-semibold">{t.aCompleter}</p>
-            <p class="text-sm text-encre/70">{role}</p>
-          </div>
-        ))
-      }
-    </div>
+    <Equipe client:visible lang={lang} />
   </section>
 
   <section class="conteneur pb-4">
-    <div class="carte p-6">
-      <h2 class="text-2xl font-medium">{t.statut}</h2>
-      <dl class="mt-3 grid gap-2 sm:grid-cols-[200px_1fr]">
-        <dt class="font-semibold">{t.forme}</dt><dd>{t.formeValeur}</dd>
-        <dt class="font-semibold">N° RNA</dt><dd dir="ltr" class="text-start">{SITE.legal.rna}</dd>
-        <dt class="font-semibold">SIRET</dt><dd>{SITE.legal.siret}</dd>
-        <dt class="font-semibold">{t.siege}</dt><dd>{lang === 'ar' ? 'سان شامون (42400)، فرنسا' : SITE.legal.address}</dd>
-        <dt class="font-semibold">{t.banque}</dt><dd>BNP Paribas</dd>
-        <dt class="font-semibold">IBAN</dt><dd class="break-all text-start font-mono text-[15px]" dir="ltr">{DEFAULT_BANK.iban}</dd>
-        <dt class="font-semibold">BIC</dt><dd class="text-start font-mono text-[15px]" dir="ltr">{DEFAULT_BANK.bic}</dd>
-      </dl>
-      <a href={lien('/don', lang)} class="btn btn-secondaire mt-5">{t.donVirement}</a>
-    </div>
+    <StatutLegal client:visible lang={lang} />
   </section>
 </BaseLayout>

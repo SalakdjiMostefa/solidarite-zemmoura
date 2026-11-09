@@ -11,11 +11,14 @@ import StatsAdmin from './StatsAdmin';
 import MessagesAdmin from './MessagesAdmin';
 import ReglagesAdmin from './ReglagesAdmin';
 import AdminsAdmin from './AdminsAdmin';
+import BureauAdmin from './BureauAdmin';
 
-type Onglet = 'evenements' | 'stats' | 'messages' | 'reglages' | 'admins';
+type Onglet = 'evenements' | 'bureau' | 'stats' | 'messages' | 'reglages' | 'admins';
 
-const ONGLETS: { id: Onglet; label: string; icone: string; superadmin?: boolean }[] = [
-  { id: 'evenements', label: 'Événements', icone: '📅' },
+/** `court` : libellé utilisé dans la barre du bas sur téléphone (place limitée) */
+const ONGLETS: { id: Onglet; label: string; court?: string; icone: string; superadmin?: boolean }[] = [
+  { id: 'evenements', label: 'Événements', court: 'Agenda', icone: '📅' },
+  { id: 'bureau', label: 'Bureau', icone: '🤝' },
   { id: 'stats', label: 'Chiffres', icone: '📊' },
   { id: 'messages', label: 'Messages', icone: '📥' },
   { id: 'reglages', label: 'Réglages', icone: '⚙️', superadmin: true },
@@ -79,19 +82,27 @@ export default function AdminApp() {
             type="button"
             onClick={() => setOnglet(o.id)}
             aria-current={onglet === o.id ? 'page' : undefined}
-            class={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-semibold md:min-h-11 md:flex-row md:gap-2 md:rounded-full md:px-4 md:text-base ${
+            class={`flex min-h-14 flex-col items-center justify-center min-w-0 gap-0.5 px-0.5 text-[11px] font-semibold tracking-tight sm:text-xs md:min-h-11 md:flex-row md:gap-2 md:rounded-full md:px-4 md:text-base ${
               onglet === o.id ? 'text-emerald-fonce md:bg-emerald-fonce md:text-white' : 'text-encre/70 md:bg-white'
             }`}
           >
             <span class="text-xl md:text-base" aria-hidden="true">
               {o.icone}
             </span>
-            {o.label}
+            {o.court ? (
+              <>
+                <span class="md:hidden">{o.court}</span>
+                <span class="hidden md:inline">{o.label}</span>
+              </>
+            ) : (
+              o.label
+            )}
           </button>
         ))}
       </nav>
 
       {onglet === 'evenements' && <EvenementsAdmin profil={profil} />}
+      {onglet === 'bureau' && <BureauAdmin />}
       {onglet === 'stats' && <StatsAdmin />}
       {onglet === 'messages' && <MessagesAdmin />}
       {onglet === 'reglages' && profil.role === 'superadmin' && <ReglagesAdmin />}
