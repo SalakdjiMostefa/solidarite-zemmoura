@@ -3,7 +3,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import EnteteePage from '../components/EnteteePage.astro';
 import { DEFAULT_CONTACT, formatTel } from '../config/site';
-import { tr, type Lang } from '../i18n';
+import { tr, lien, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
@@ -25,6 +25,30 @@ const canaux = [
 
 <BaseLayout title={t.titre} description={t.description} lang={lang}>
   <EnteteePage surtitre={t.surtitre} titre={t.titre} sousTitre={lang === 'fr' ? 'اتصل بنا' : undefined} />
+  <!-- Bénévolat et demande d'aide (retirés du menu, mis en avant ici) -->
+  <section class="conteneur pt-10" aria-labelledby="t-souhait">
+    <h2 id="t-souhait" class="mb-4 text-2xl font-medium">{t.vousSouhaitez}</h2>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {
+        [
+          { href: lien('/benevole', lang), icone: '🙋', titre: T.nav.benevole, texte: t.benevoleTexte },
+          { href: lien('/aide', lang), icone: '🤝', titre: T.nav.aide, texte: t.aideTexte },
+        ].map((c) => (
+          <a href={c.href} class="carte carte-survol group flex items-center gap-4 p-5 sm:p-6">
+            <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-pierre text-2xl" aria-hidden="true">
+              {c.icone}
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="block font-titre text-xl">{c.titre}</span>
+              <span class="mt-0.5 block text-encre/70">{c.texte}</span>
+            </span>
+            <span class="text-encre/30 transition group-hover:text-encre/70 rtl:rotate-180" aria-hidden="true">→</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
   <section class="conteneur grid grid-cols-1 gap-8 py-10 lg:grid-cols-2">
     <ul class="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
       {

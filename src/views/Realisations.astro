@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import EnteteePage from '../components/EnteteePage.astro';
 import Accomplissements from '../islands/Accomplissements';
 import ChiffresCles from '../islands/ChiffresCles';
+import BoutiqueApercu from '../islands/BoutiqueApercu';
 import { tr, type Lang } from '../i18n';
 
 interface Props {
@@ -21,5 +22,8 @@ const t = tr(lang).realisations;
     <h2 class="titre-section">{t.accompli}</h2>
     <p class="lead mt-3 mb-10 max-w-2xl">{t.accompliIntro}</p>
     <Accomplissements client:visible lang={lang} />
+    <div class="mt-16">
+      <BoutiqueApercu client:load lang={lang} variante="bandeau" />
+    </div>
   </section>
 </BaseLayout>

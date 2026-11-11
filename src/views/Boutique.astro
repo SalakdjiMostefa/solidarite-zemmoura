@@ -1,0 +1,23 @@
+---
+/** Boutique solidaire : articles gérés dans l'admin (onglet Boutique), commande par WhatsApp */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnteteePage from '../components/EnteteePage.astro';
+import Boutique, { CommentCaMarche } from '../islands/Boutique';
+import { tr, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = tr(lang).boutique;
+---
+
+<BaseLayout title={t.titre} description={t.description} lang={lang}>
+  <EnteteePage surtitre={t.surtitre} titre={t.titre} sousTitre={lang === 'fr' ? 'المتجر التضامني' : undefined} intro={t.intro} />
+  <section class="conteneur py-10">
+    <Boutique client:load lang={lang} />
+  </section>
+  <section class="conteneur pb-16">
+    <CommentCaMarche client:load lang={lang} />
+  </section>
+</BaseLayout>

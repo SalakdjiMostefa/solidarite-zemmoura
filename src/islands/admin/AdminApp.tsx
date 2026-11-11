@@ -12,12 +12,14 @@ import MessagesAdmin from './MessagesAdmin';
 import ReglagesAdmin from './ReglagesAdmin';
 import AdminsAdmin from './AdminsAdmin';
 import BureauAdmin from './BureauAdmin';
+import BoutiqueAdmin from './BoutiqueAdmin';
 
-type Onglet = 'evenements' | 'bureau' | 'stats' | 'messages' | 'reglages' | 'admins';
+type Onglet = 'evenements' | 'boutique' | 'bureau' | 'stats' | 'messages' | 'reglages' | 'admins';
 
 /** `court` : libellé utilisé dans la barre du bas sur téléphone (place limitée) */
 const ONGLETS: { id: Onglet; label: string; court?: string; icone: string; superadmin?: boolean }[] = [
   { id: 'evenements', label: 'Événements', court: 'Agenda', icone: '📅' },
+  { id: 'boutique', label: 'Boutique', icone: '🛍️' },
   { id: 'bureau', label: 'Bureau', icone: '🤝' },
   { id: 'stats', label: 'Chiffres', icone: '📊' },
   { id: 'messages', label: 'Messages', icone: '📥' },
@@ -73,8 +75,7 @@ export default function AdminApp() {
 
       {/* Onglets : en haut sur ordinateur, barre fixe en bas sur téléphone */}
       <nav
-        class="pb-safe fixed inset-x-0 bottom-0 z-40 grid border-t border-sable bg-white md:static md:mb-6 md:flex md:gap-2 md:border-0 md:bg-transparent"
-        style={{ gridTemplateColumns: `repeat(${visibles.length}, minmax(0, 1fr))` }}
+        class="pb-safe fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-sable bg-white md:static md:mb-6 md:flex-wrap md:gap-2 md:overflow-visible md:border-0 md:bg-transparent"
         aria-label="Sections de l'administration"
       >
         {visibles.map((o) => (
@@ -82,7 +83,7 @@ export default function AdminApp() {
             type="button"
             onClick={() => setOnglet(o.id)}
             aria-current={onglet === o.id ? 'page' : undefined}
-            class={`flex min-h-14 flex-col items-center justify-center min-w-0 gap-0.5 px-0.5 text-[11px] font-semibold tracking-tight sm:text-xs md:min-h-11 md:flex-row md:gap-2 md:rounded-full md:px-4 md:text-base ${
+            class={`flex min-h-14 min-w-[60px] flex-1 shrink-0 flex-col items-center justify-center gap-0.5 px-0.5 text-[11px] font-semibold tracking-tight sm:text-xs md:min-h-11 md:flex-row md:gap-2 md:rounded-full md:px-4 md:text-base ${
               onglet === o.id ? 'text-emerald-fonce md:bg-emerald-fonce md:text-white' : 'text-encre/70 md:bg-white'
             }`}
           >
@@ -102,6 +103,7 @@ export default function AdminApp() {
       </nav>
 
       {onglet === 'evenements' && <EvenementsAdmin profil={profil} />}
+      {onglet === 'boutique' && <BoutiqueAdmin />}
       {onglet === 'bureau' && <BureauAdmin />}
       {onglet === 'stats' && <StatsAdmin />}
       {onglet === 'messages' && <MessagesAdmin />}

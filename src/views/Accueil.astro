@@ -10,6 +10,7 @@ import DecorSaison from '../components/DecorSaison.astro';
 import PontAnime from '../islands/PontAnime';
 import ProchainsEvenements from '../islands/ProchainsEvenements';
 import Calendrier from '../islands/Calendrier';
+import BoutiqueApercu from '../islands/BoutiqueApercu';
 import ReseauxSociaux from '../components/ReseauxSociaux.astro';
 import { tr, lien, type Lang } from '../i18n';
 
@@ -73,6 +74,9 @@ const L = (p: string) => lien(p, lang);
     </div>
   </section>
 
+  <!-- BOUTIQUE SOLIDAIRE (masquée tant qu'il n'y a pas d'article) -->
+  <BoutiqueApercu client:load lang={lang} />
+
   <!-- RÉSEAUX SOCIAUX -->
   <ReseauxSociaux lang={lang} />
 
@@ -83,5 +87,9 @@ const L = (p: string) => lien(p, lang);
     <h2 class="titre-section mx-auto max-w-2xl">{t.ctaTitre}</h2>
     <p class="lead mx-auto mt-4 max-w-xl">{t.ctaTexte}</p>
     <a href={L('/don')} class="btn btn-don mt-8">{t.ctaBouton}</a>
+    <p class="mt-6 text-sm text-encre/70">
+      {t.ctaTemps}
+      <a href={L('/benevole')} class="font-medium text-encre underline-offset-4 hover:underline">{T.nav.benevole} {T.commun.fleche}</a>
+    </p>
   </section>
 </BaseLayout>

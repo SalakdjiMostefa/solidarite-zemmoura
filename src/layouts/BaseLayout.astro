@@ -137,18 +137,35 @@ const polices =
           !admin && (
             <>
               <nav class="hidden min-w-0 flex-1 items-center justify-center xl:flex" aria-label={t.commun.menu}>
-                {NAV.filter((n) => n.href !== '/').map((n) => (
-                  <a
-                    href={L(n.href)}
-                    class:list={[
-                      'whitespace-nowrap px-2.5 py-2 text-[15px] text-encre/70 transition hover:text-encre',
-                      actif(n.href) && 'text-encre underline decoration-terracotta underline-offset-8',
-                    ]}
-                    aria-current={actif(n.href) ? 'page' : undefined}
-                  >
-                    {t.nav[n.cle]}
-                  </a>
-                ))}
+                {NAV.filter((n) => n.href !== '/').map((n) =>
+                  n.cle === 'boutique' ? (
+                    // Boutique mise en avant : pastille terracotta claire + sac
+                    <a
+                      href={L(n.href)}
+                      class:list={[
+                        'mx-1 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[15px] transition',
+                        actif(n.href)
+                          ? 'border-terracotta bg-terracotta/15 text-terracotta-fonce'
+                          : 'border-terracotta/30 bg-terracotta/[0.07] text-terracotta-fonce hover:border-terracotta/60 hover:bg-terracotta/15',
+                      ]}
+                      aria-current={actif(n.href) ? 'page' : undefined}
+                    >
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>
+                      {t.nav[n.cle]}
+                    </a>
+                  ) : (
+                    <a
+                      href={L(n.href)}
+                      class:list={[
+                        'whitespace-nowrap px-2.5 py-2 text-[15px] text-encre/70 transition hover:text-encre',
+                        actif(n.href) && 'text-encre underline decoration-terracotta underline-offset-8',
+                      ]}
+                      aria-current={actif(n.href) ? 'page' : undefined}
+                    >
+                      {t.nav[n.cle]}
+                    </a>
+                  ),
+                )}
               </nav>
               <div class="ms-auto flex shrink-0 items-center gap-1 sm:gap-2">
                 <a
@@ -186,8 +203,8 @@ const polices =
         }
         {
           admin && (
-            <a href="/" class="btn btn-secondaire ms-auto min-h-11 px-4 text-sm">
-              <span aria-hidden="true">←</span> Retour au site
+            <a href="/" class="btn btn-secondaire ms-auto min-h-11 shrink-0 px-3 text-sm sm:px-4">
+              <span aria-hidden="true">←</span> <span class="sm:hidden">Site</span><span class="hidden sm:inline">Retour au site</span>
             </a>
           )
         }
@@ -207,12 +224,13 @@ const polices =
                   <a
                     href={L(n.href)}
                     class:list={[
-                      'flex min-h-12 items-center border-b border-sable/70 font-titre text-xl',
-                      actif(n.href) ? 'text-terracotta-fonce' : 'text-encre',
+                      'flex min-h-12 items-center gap-2 border-b border-sable/70 font-titre text-xl',
+                      actif(n.href) || n.cle === 'boutique' ? 'text-terracotta-fonce' : 'text-encre',
                     ]}
                     aria-current={actif(n.href) ? 'page' : undefined}
                   >
                     {t.nav[n.cle]}
+                    {n.cle === 'boutique' && <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>}
                   </a>
                 </li>
               ))}

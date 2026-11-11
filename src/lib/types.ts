@@ -132,3 +132,33 @@ export interface AssociationSettings {
   /** Nom de la banque */
   bankName: string;
 }
+
+/** Article de la boutique solidaire (bénéfices reversés aux actions) */
+export interface Product {
+  id: string;
+  name: string;
+  nameAr?: string;
+  description: string;
+  descriptionAr?: string;
+  /** Prix en euros ; vide = prix libre */
+  price?: number;
+  /** Ce que l'achat finance (ex. « 1 couffin pour une famille ») */
+  impact?: string;
+  impactAr?: string;
+  photos: string[];
+  /** Plus en stock : l'article reste visible mais n'est plus commandable */
+  soldOut?: boolean;
+  /** Masqué du site */
+  hidden?: boolean;
+  /** Ordre d'affichage (petit = en premier) */
+  order: number;
+  createdAt?: number;
+}
+
+/** Encadré « Comment ça marche ? » de la boutique (modifiable par tous les admins) */
+export interface BoutiqueSettings {
+  title: string;
+  steps: string[];
+  titleAr?: string;
+  stepsAr?: string[];
+}

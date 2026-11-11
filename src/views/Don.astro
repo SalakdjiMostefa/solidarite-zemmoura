@@ -9,6 +9,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = tr(lang).don;
+import BoutiqueApercu from '../islands/BoutiqueApercu';
 ---
 
 <BaseLayout title={t.titre} description={t.description} lang={lang} sansBoutonDon>
@@ -16,5 +17,8 @@ const t = tr(lang).don;
   <section class="conteneur py-10">
     <Don client:load lang={lang} />
     <p class="mt-8 text-center text-sm text-encre/65">🔒 {t.securite}</p>
+    <div class="mx-auto mt-10 max-w-3xl">
+      <BoutiqueApercu client:load lang={lang} variante="bandeau" />
+    </div>
   </section>
 </BaseLayout>

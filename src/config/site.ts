@@ -67,13 +67,13 @@ export const formatTel = (tel: string) =>
     .replace(/(\d{2})(?=\d)/g, '$1 ')
     .trim();
 
-/** Navigation principale (libellés dans src/i18n, clé « nav ») */
+/** Navigation principale (libellés dans src/i18n, clé « nav »).
+ *  Bénévole et Demande d'aide sont accessibles depuis Contact, l'accueil et le pied de page. */
 export const NAV = [
   { href: '/', cle: 'accueil' },
   { href: '/association', cle: 'association' },
   { href: '/evenements', cle: 'evenements' },
   { href: '/realisations', cle: 'realisations' },
-  { href: '/benevole', cle: 'benevole' },
-  { href: '/aide', cle: 'aide' },
+  { href: '/boutique', cle: 'boutique' },
   { href: '/contact', cle: 'contact' },
 ] as const;

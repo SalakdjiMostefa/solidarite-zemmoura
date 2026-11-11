@@ -5,16 +5,18 @@
  */
 import { FIREBASE_READY, FIREBASE_CONFIG } from '../../config/site';
 import { toEvent } from '../../lib/api';
-import { DEMO_ASSOCIATION, DEMO_CONTACT, DEMO_DONATION, DEMO_EVENTS, DEMO_STATS, DEMO_TEAM, DEMO_THEME } from '../../lib/demo-data';
+import { DEMO_ASSOCIATION, DEMO_BOUTIQUE, DEMO_CONTACT, DEMO_DONATION, DEMO_EVENTS, DEMO_PRODUCTS, DEMO_STATS, DEMO_TEAM, DEMO_THEME } from '../../lib/demo-data';
 import { autoDonationRef, slugify } from '../../lib/labels';
 import type {
   AdminProfile,
   AssociationSettings,
+  BoutiqueSettings,
   AdminRole,
   AssoEvent,
   ContactSettings,
   DonationSettings,
   GlobalStats,
+  Product,
   TeamSettings,
   ThemeSettings,
 } from '../../lib/types';
@@ -31,12 +33,14 @@ export interface InboxItem {
 /* ───────────────────────── Mode démo (mémoire) ───────────────────────── */
 const mem = {
   events: structuredClone(DEMO_EVENTS) as AssoEvent[],
+  products: structuredClone(DEMO_PRODUCTS) as Product[],
   stats: { ...DEMO_STATS },
   donation: structuredClone(DEMO_DONATION),
   contact: { ...DEMO_CONTACT },
   theme: { ...DEMO_THEME },
   team: structuredClone(DEMO_TEAM),
   association: { ...DEMO_ASSOCIATION },
+  boutique: structuredClone(DEMO_BOUTIQUE),
   admins: [{ uid: 'demo', email: 'demo@exemple.fr', name: 'Admin démo', role: 'superadmin' }] as AdminProfile[],
   volunteers: [
     { id: 'v1', createdAt: Date.now() - 86400000, name: 'Karim B.', phone: '+33 6 00 00 00 01', city: 'Saint-Chamond', availability: ['Week-end'] },
@@ -199,6 +203,59 @@ export function duplicateInput(ev: AssoEvent): EventInput {
   };
 }
 
+/* ───────────────────────── Boutique ───────────────────────── */
+export async function listProducts(): Promise<Product[]> {
+  if (DEMO) {
+    await pause();
+    return [...mem.products].sort((a, b) => a.order - b.order);
+  }
+  const { db, fs } = await fb();
+  const snap = await fs.getDocs(fs.query(fs.collection(db, 'products'), fs.orderBy('order', 'asc')));
+  return snap.docs.map((d) => ({ photos: [], ...d.data(), id: d.id }) as unknown as Product);
+}
+
+export type ProductInput = Omit<Product, 'id' | 'createdAt'>;
+
+export async function saveProduct(input: ProductInput, id?: string): Promise<void> {
+  const data = propre(input);
+  if (DEMO) {
+    await pause();
+    if (id) {
+      const i = mem.products.findIndex((p) => p.id === id);
+      mem.products[i] = { ...data, id };
+    } else mem.products.push({ ...data, id: `p-${Date.now()}`, createdAt: Date.now() });
+    return;
+  }
+  const { db, fs } = await fb();
+  if (id) {
+    const effaces = Object.fromEntries(
+      Object.entries(input)
+        .filter(([, v]) => v === undefined)
+        .map(([k]) => [k, fs.deleteField()]),
+    );
+    await fs.updateDoc(fs.doc(db, 'products', id), { ...effaces, ...data, updatedAt: fs.serverTimestamp() });
+  } else await fs.addDoc(fs.collection(db, 'products'), { ...data, createdAt: fs.serverTimestamp() });
+}
+
+export async function patchProduct(id: string, patch: Partial<Product>): Promise<void> {
+  if (DEMO) {
+    const p = mem.products.find((x) => x.id === id);
+    if (p) Object.assign(p, patch);
+    return pause();
+  }
+  const { db, fs } = await fb();
+  await fs.updateDoc(fs.doc(db, 'products', id), propre(patch));
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  if (DEMO) {
+    mem.products = mem.products.filter((p) => p.id !== id);
+    return pause();
+  }
+  const { db, fs } = await fb();
+  await fs.deleteDoc(fs.doc(db, 'products', id));
+}
+
 /* ───────────────────────── Stats & réglages ───────────────────────── */
 type DocMap = {
   'stats/global': GlobalStats;
@@ -207,6 +264,7 @@ type DocMap = {
   'settings/theme': ThemeSettings;
   'settings/team': TeamSettings;
   'settings/association': AssociationSettings;
+  'settings/boutique': BoutiqueSettings;
 };
 
 const memDocs = (): DocMap => ({
@@ -216,6 +274,7 @@ const memDocs = (): DocMap => ({
   'settings/theme': mem.theme,
   'settings/team': mem.team,
   'settings/association': mem.association,
+  'settings/boutique': mem.boutique,
 });
 
 export async function readDoc<K extends keyof DocMap>(path: K): Promise<DocMap[K]> {
@@ -235,6 +294,7 @@ export async function writeDoc<K extends keyof DocMap>(path: K, value: DocMap[K]
     if (path === 'settings/theme') mem.theme = value as ThemeSettings;
     if (path === 'settings/team') mem.team = value as TeamSettings;
     if (path === 'settings/association') mem.association = value as AssociationSettings;
+    if (path === 'settings/boutique') mem.boutique = value as BoutiqueSettings;
     return pause();
   }
   const { db, fs } = await fb();

@@ -123,6 +123,20 @@ Page « L'association », section équipe. Tout admin peut la modifier.
 Tant qu'aucune section n'existe, le site affiche le bureau « À compléter ».
 Photo d'un responsable : seulement avec son accord.
 
+## Boutique solidaire (🛍️ Boutique)
+
+Tous les admins peuvent la gérer.
+
+1. **+ Nouvel article** : nom, prix (vide = prix libre), **ce que l'achat finance**
+   (ex. *1 couffin pour une famille*, affiché en vert : c'est ce qui donne envie d'acheter),
+   description, photos (6 max), version arabe facultative.
+2. Dans la liste : ↑ ↓ pour l'ordre, **Épuisé / Disponible**, **Masquer / Afficher**, Supprimer.
+3. En bas de l'onglet : le texte **« Comment ça marche ? »** (une étape par ligne).
+
+Les visiteurs commandent par **WhatsApp** (numéro de Réglages → Contacts) ; paiement et remise
+se règlent ensuite avec eux. Dès qu'un article est disponible, la boutique apparaît aussi sur
+l'accueil, la page Don et la page Réalisations.
+
 ## Messages reçus (📥)
 
 - **Virements déclarés** : les personnes qui disent avoir fait un virement. Cochez **« Virement reçu / traité »** quand vous l'avez vu sur le compte.

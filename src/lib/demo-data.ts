@@ -5,7 +5,7 @@
  *   pour que le site soit visible dès le premier `npm run dev`.
  * Aucune photo de personne identifiable : les visuels sont des illustrations SVG.
  */
-import type { AssociationSettings, AssoEvent, ContactSettings, DonationSettings, GlobalStats, TeamSettings, ThemeSettings } from './types';
+import type { AssociationSettings, AssoEvent, BoutiqueSettings, Product, ContactSettings, DonationSettings, GlobalStats, TeamSettings, ThemeSettings } from './types';
 import { DEFAULT_BANK, DEFAULT_CONTACT, SITE } from '../config/site';
 import { tr } from '../i18n';
 
@@ -216,4 +216,15 @@ export const DEMO_ASSOCIATION: AssociationSettings = {
   president: '',
   address: SITE.legal.address,
   bankName: 'BNP Paribas',
+};
+
+/** Boutique vide par défaut */
+export const DEMO_PRODUCTS: Product[] = [];
+
+/** « Comment ça marche ? » par défaut (tant que rien n'est saisi dans l'admin) */
+export const DEMO_BOUTIQUE: BoutiqueSettings = {
+  title: tr('fr').boutique.commentTitre,
+  steps: [...tr('fr').boutique.comment],
+  titleAr: tr('ar').boutique.commentTitre,
+  stepsAr: [...tr('ar').boutique.comment],
 };

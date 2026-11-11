@@ -36,6 +36,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ── Boutique solidaire ──
+    match /products/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && str(request.resource.data.name, 1, 80)
+        && request.resource.data.order is number
+        && request.resource.data.photos is list
+        && request.resource.data.photos.size() <= 6;
+      allow delete: if isAdmin();
+    }
+
     // ── Données publiques en lecture ──
     match /stats/{doc} {
       allow read: if true;
@@ -44,6 +55,12 @@ service cloud.firestore {
     match /settings/{doc} {
       allow read: if true;
       allow write: if isSuper();
+    }
+    // Encadré « Comment ça marche ? » de la boutique : modifiable par tous les admins
+    match /settings/boutique {
+      allow write: if isAdmin()
+        && request.resource.data.steps is list
+        && request.resource.data.steps.size() <= 10;
     }
     // Équipe (page « L'association ») : modifiable par tous les admins
     match /settings/team {

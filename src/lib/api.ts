@@ -7,19 +7,23 @@
 import { FIREBASE_READY } from '../config/site';
 import {
   DEMO_ASSOCIATION,
+  DEMO_BOUTIQUE,
   DEMO_CONTACT,
   DEMO_DONATION,
   DEMO_EVENTS,
+  DEMO_PRODUCTS,
   DEMO_STATS,
   DEMO_TEAM,
   DEMO_THEME,
 } from './demo-data';
 import type {
   AssociationSettings,
+  BoutiqueSettings,
   AssoEvent,
   ContactSettings,
   DonationSettings,
   GlobalStats,
+  Product,
   TeamSettings,
   ThemeSettings,
 } from './types';
@@ -63,6 +67,14 @@ export async function getEventBySlug(slug: string): Promise<AssoEvent | null> {
   return doc ? toEvent(doc.id, doc.data()) : null;
 }
 
+/** Articles visibles de la boutique (triés par ordre) */
+export async function getProducts(): Promise<Product[]> {
+  if (!FIREBASE_READY) return [...DEMO_PRODUCTS].filter((p) => !p.hidden).sort((a, b) => a.order - b.order);
+  const { db, collection, query, orderBy, getDocs } = await fs();
+  const snap = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
+  return snap.docs.map((d) => ({ photos: [], ...d.data(), id: d.id }) as unknown as Product).filter((p) => !p.hidden);
+}
+
 /** Lecture d'un document de réglages avec valeur par défaut */
 async function getDocOr<T>(path: [string, string], fallback: T): Promise<T> {
   if (!FIREBASE_READY) return fallback;
@@ -81,6 +93,7 @@ export const getDonationSettings = () => getDocOr<DonationSettings>(['settings',
 export const getContactSettings = () => getDocOr<ContactSettings>(['settings', 'contact'], DEMO_CONTACT);
 export const getThemeSettings = () => getDocOr<ThemeSettings>(['settings', 'theme'], DEMO_THEME);
 export const getAssociation = () => getDocOr<AssociationSettings>(['settings', 'association'], DEMO_ASSOCIATION);
+export const getBoutiqueSettings = () => getDocOr<BoutiqueSettings>(['settings', 'boutique'], DEMO_BOUTIQUE);
 export const getTeam = () => getDocOr<TeamSettings>(['settings', 'team'], DEMO_TEAM);
 /** Abonnement temps réel aux stats (pour le pont animé). Renvoie une fonction de désabonnement. */
 export function watchStats(cb: (s: GlobalStats) => void): () => void {
