@@ -216,3 +216,34 @@ html[lang='ar'] .surtitre {
 html[lang='ar'] [lang='fr'] {
   font-family: var(--font-sans);
 }
+
+/* ── Footer fixe des sponsors : défilement continu de droite à gauche ── */
+@keyframes defile-sponsors {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.piste-sponsors {
+  animation: defile-sponsors linear infinite;
+}
+/* Pause au survol et quand un lien a le focus clavier */
+.defile-sponsors:hover .piste-sponsors,
+.defile-sponsors:focus-within .piste-sponsors {
+  animation-play-state: paused;
+}
+/* Bords fondus */
+.defile-sponsors {
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+/* Animations désactivées par le visiteur : pas de mouvement, défilement à la main */
+@media (prefers-reduced-motion: reduce) {
+  .piste-sponsors {
+    animation: none;
+  }
+  .defile-sponsors {
+    overflow-x: auto;
+  }
+}

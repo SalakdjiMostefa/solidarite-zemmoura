@@ -12,6 +12,7 @@ import {
   DEMO_DONATION,
   DEMO_EVENTS,
   DEMO_PRODUCTS,
+  DEMO_SPONSORS,
   DEMO_STATS,
   DEMO_TEAM,
   DEMO_THEME,
@@ -24,6 +25,7 @@ import type {
   DonationSettings,
   GlobalStats,
   Product,
+  Sponsor,
   TeamSettings,
   ThemeSettings,
 } from './types';
@@ -73,6 +75,14 @@ export async function getProducts(): Promise<Product[]> {
   const { db, collection, query, orderBy, getDocs } = await fs();
   const snap = await getDocs(query(collection(db, 'products'), orderBy('order', 'asc')));
   return snap.docs.map((d) => ({ photos: [], ...d.data(), id: d.id }) as unknown as Product).filter((p) => !p.hidden);
+}
+
+/** Sponsors visibles (triés par ordre) */
+export async function getSponsors(): Promise<Sponsor[]> {
+  if (!FIREBASE_READY) return [...DEMO_SPONSORS].filter((p) => !p.hidden).sort((a, b) => a.order - b.order);
+  const { db, collection, query, orderBy, getDocs } = await fs();
+  const snap = await getDocs(query(collection(db, 'sponsors'), orderBy('order', 'asc')));
+  return snap.docs.map((d) => ({ ...d.data(), id: d.id }) as unknown as Sponsor).filter((p) => !p.hidden);
 }
 
 /** Lecture d'un document de réglages avec valeur par défaut */

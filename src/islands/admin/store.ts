@@ -5,7 +5,7 @@
  */
 import { FIREBASE_READY, FIREBASE_CONFIG } from '../../config/site';
 import { toEvent } from '../../lib/api';
-import { DEMO_ASSOCIATION, DEMO_BOUTIQUE, DEMO_CONTACT, DEMO_DONATION, DEMO_EVENTS, DEMO_PRODUCTS, DEMO_STATS, DEMO_TEAM, DEMO_THEME } from '../../lib/demo-data';
+import { DEMO_ASSOCIATION, DEMO_BOUTIQUE, DEMO_CONTACT, DEMO_DONATION, DEMO_EVENTS, DEMO_PRODUCTS, DEMO_SPONSORS, DEMO_STATS, DEMO_TEAM, DEMO_THEME } from '../../lib/demo-data';
 import { autoDonationRef, slugify } from '../../lib/labels';
 import type {
   AdminProfile,
@@ -17,6 +17,7 @@ import type {
   DonationSettings,
   GlobalStats,
   Product,
+  Sponsor,
   TeamSettings,
   ThemeSettings,
 } from '../../lib/types';
@@ -34,6 +35,7 @@ export interface InboxItem {
 const mem = {
   events: structuredClone(DEMO_EVENTS) as AssoEvent[],
   products: structuredClone(DEMO_PRODUCTS) as Product[],
+  sponsors: structuredClone(DEMO_SPONSORS) as Sponsor[],
   stats: { ...DEMO_STATS },
   donation: structuredClone(DEMO_DONATION),
   contact: { ...DEMO_CONTACT },
@@ -254,6 +256,59 @@ export async function deleteProduct(id: string): Promise<void> {
   }
   const { db, fs } = await fb();
   await fs.deleteDoc(fs.doc(db, 'products', id));
+}
+
+/* ───────────────────────── Sponsors ───────────────────────── */
+export async function listSponsors(): Promise<Sponsor[]> {
+  if (DEMO) {
+    await pause();
+    return [...mem.sponsors].sort((a, b) => a.order - b.order);
+  }
+  const { db, fs } = await fb();
+  const snap = await fs.getDocs(fs.query(fs.collection(db, 'sponsors'), fs.orderBy('order', 'asc')));
+  return snap.docs.map((d) => ({ ...d.data(), id: d.id }) as unknown as Sponsor);
+}
+
+export type SponsorInput = Omit<Sponsor, 'id' | 'createdAt'>;
+
+export async function saveSponsor(input: SponsorInput, id?: string): Promise<void> {
+  const data = propre(input);
+  if (DEMO) {
+    await pause();
+    if (id) {
+      const i = mem.sponsors.findIndex((p) => p.id === id);
+      mem.sponsors[i] = { ...data, id };
+    } else mem.sponsors.push({ ...data, id: `s-${Date.now()}`, createdAt: Date.now() });
+    return;
+  }
+  const { db, fs } = await fb();
+  if (id) {
+    const effaces = Object.fromEntries(
+      Object.entries(input)
+        .filter(([, v]) => v === undefined)
+        .map(([k]) => [k, fs.deleteField()]),
+    );
+    await fs.updateDoc(fs.doc(db, 'sponsors', id), { ...effaces, ...data, updatedAt: fs.serverTimestamp() });
+  } else await fs.addDoc(fs.collection(db, 'sponsors'), { ...data, createdAt: fs.serverTimestamp() });
+}
+
+export async function patchSponsor(id: string, patch: Partial<Sponsor>): Promise<void> {
+  if (DEMO) {
+    const p = mem.sponsors.find((x) => x.id === id);
+    if (p) Object.assign(p, patch);
+    return pause();
+  }
+  const { db, fs } = await fb();
+  await fs.updateDoc(fs.doc(db, 'sponsors', id), propre(patch));
+}
+
+export async function deleteSponsor(id: string): Promise<void> {
+  if (DEMO) {
+    mem.sponsors = mem.sponsors.filter((p) => p.id !== id);
+    return pause();
+  }
+  const { db, fs } = await fb();
+  await fs.deleteDoc(fs.doc(db, 'sponsors', id));
 }
 
 /* ───────────────────────── Stats & réglages ───────────────────────── */

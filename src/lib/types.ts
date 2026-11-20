@@ -162,3 +162,17 @@ export interface BoutiqueSettings {
   titleAr?: string;
   stepsAr?: string[];
 }
+
+/** Sponsor affiché dans le footer fixe (photo + nom, défilement) */
+export interface Sponsor {
+  id: string;
+  name: string;
+  /** Photo ou logo du sponsor */
+  photo: string;
+  /** Site du sponsor (facultatif) */
+  url?: string;
+  hidden?: boolean;
+  /** Ordre d'affichage (petit = en premier) */
+  order: number;
+  createdAt?: number;
+}

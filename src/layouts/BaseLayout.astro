@@ -7,6 +7,7 @@ import '../styles/global.css';
 import { SITE, NAV, FIREBASE_CONFIG, FIREBASE_READY, DEFAULT_CONTACT } from '../config/site';
 import { dirOf, tr, lien, cheminAutreLangue, LANGS, type Lang } from '../i18n';
 import Logo from '../components/Logo.astro';
+import Sponsors from '../islands/Sponsors';
 
 interface Props {
   title: string;
@@ -292,7 +293,7 @@ const polices =
     <!-- Bouton « Faire un don » fixe en bas (mobile/tablette) -->
     {
       !sansBoutonDon && !admin && (
-        <div class="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-sable bg-creme/95 backdrop-blur md:hidden">
+        <div data-barre-don class="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-sable bg-creme/95 backdrop-blur md:hidden">
           <div class="conteneur py-2.5">
             <a href={L('/don')} class="btn btn-don w-full">
               {t.commun.donner}
@@ -301,6 +302,9 @@ const polices =
         </div>
       )
     }
+
+    <!-- Footer fixe des sponsors (masqué s'il n'y en a aucun) -->
+    {!admin && <Sponsors client:load lang={lang} />}
 
     <!-- Zone de notifications accessible -->
     <div

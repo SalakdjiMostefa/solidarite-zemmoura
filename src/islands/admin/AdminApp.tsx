@@ -13,13 +13,15 @@ import ReglagesAdmin from './ReglagesAdmin';
 import AdminsAdmin from './AdminsAdmin';
 import BureauAdmin from './BureauAdmin';
 import BoutiqueAdmin from './BoutiqueAdmin';
+import SponsorsAdmin from './SponsorsAdmin';
 
-type Onglet = 'evenements' | 'boutique' | 'bureau' | 'stats' | 'messages' | 'reglages' | 'admins';
+type Onglet = 'evenements' | 'boutique' | 'sponsors' | 'bureau' | 'stats' | 'messages' | 'reglages' | 'admins';
 
 /** `court` : libellé utilisé dans la barre du bas sur téléphone (place limitée) */
 const ONGLETS: { id: Onglet; label: string; court?: string; icone: string; superadmin?: boolean }[] = [
   { id: 'evenements', label: 'Événements', court: 'Agenda', icone: '📅' },
   { id: 'boutique', label: 'Boutique', icone: '🛍️' },
+  { id: 'sponsors', label: 'Sponsors', icone: '🏅' },
   { id: 'bureau', label: 'Bureau', icone: '🤝' },
   { id: 'stats', label: 'Chiffres', icone: '📊' },
   { id: 'messages', label: 'Messages', icone: '📥' },
@@ -104,6 +106,7 @@ export default function AdminApp() {
 
       {onglet === 'evenements' && <EvenementsAdmin profil={profil} />}
       {onglet === 'boutique' && <BoutiqueAdmin />}
+      {onglet === 'sponsors' && <SponsorsAdmin />}
       {onglet === 'bureau' && <BureauAdmin />}
       {onglet === 'stats' && <StatsAdmin />}
       {onglet === 'messages' && <MessagesAdmin />}

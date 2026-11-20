@@ -137,6 +137,15 @@ Les visiteurs commandent par **WhatsApp** (numéro de Réglages → Contacts) ; 
 se règlent ensuite avec eux. Dès qu'un article est disponible, la boutique apparaît aussi sur
 l'accueil, la page Don et la page Réalisations.
 
+## Sponsors (🏅 Sponsors)
+
+Les sponsors défilent de droite à gauche dans une barre fixée en bas de toutes les pages du site.
+
+1. **+ Ajouter un sponsor** : nom, **photo ou logo** (appareil photo ou galerie), site internet facultatif.
+2. Dans la liste : ↑ ↓ pour l'ordre, **Masquer / Afficher**, Modifier, Supprimer.
+
+Sans aucun sponsor (ou tous masqués), la barre n'apparaît pas.
+
 ## Messages reçus (📥)
 
 - **Virements déclarés** : les personnes qui disent avoir fait un virement. Cochez **« Virement reçu / traité »** quand vous l'avez vu sur le compte.

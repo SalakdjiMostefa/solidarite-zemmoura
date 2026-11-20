@@ -5,7 +5,7 @@
  *   pour que le site soit visible dès le premier `npm run dev`.
  * Aucune photo de personne identifiable : les visuels sont des illustrations SVG.
  */
-import type { AssociationSettings, AssoEvent, BoutiqueSettings, Product, ContactSettings, DonationSettings, GlobalStats, TeamSettings, ThemeSettings } from './types';
+import type { AssociationSettings, AssoEvent, BoutiqueSettings, Product, Sponsor, ContactSettings, DonationSettings, GlobalStats, TeamSettings, ThemeSettings } from './types';
 import { DEFAULT_BANK, DEFAULT_CONTACT, SITE } from '../config/site';
 import { tr } from '../i18n';
 
@@ -228,3 +228,6 @@ export const DEMO_BOUTIQUE: BoutiqueSettings = {
   titleAr: tr('ar').boutique.commentTitre,
   stepsAr: [...tr('ar').boutique.comment],
 };
+
+/** Aucun sponsor par défaut : le footer des sponsors reste masqué */
+export const DEMO_SPONSORS: Sponsor[] = [];

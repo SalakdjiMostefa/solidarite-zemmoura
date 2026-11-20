@@ -258,6 +258,9 @@ const fr = {
     titulaire: 'Titulaire du compte',
     donVirement: 'Faire un don par virement',
   },
+  sponsors: {
+    titre: 'Merci à nos partenaires',
+  },
   boutique: {
     titre: 'Boutique solidaire',
     surtitre: 'Acheter utile',
@@ -605,6 +608,9 @@ const ar: Dico = {
     banque: 'البنك',
     titulaire: 'صاحب الحساب',
     donVirement: 'التبرّع عبر التحويل البنكي',
+  },
+  sponsors: {
+    titre: 'شكراً لشركائنا',
   },
   boutique: {
     titre: 'المتجر التضامني',
