@@ -28,7 +28,10 @@ export default function FicheEvenement({
   const [ev, setEv] = useState<AssoEvent | null | undefined>(initialEvent);
 
   useEffect(() => {
-    const id = slug || new URLSearchParams(location.search).get('id');
+    // Slug : fourni au build, sinon ?id=…, sinon dernier segment de l'URL
+    // (/evenements/mon-evenement servi par la page générique grâce à la réécriture firebase.json)
+    const dernier = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() ?? '');
+    const id = slug || new URLSearchParams(location.search).get('id') || (dernier && dernier !== 'voir' && dernier !== 'evenements' ? dernier : '');
     if (!id) {
       if (!initialEvent) setEv(null);
       return;
@@ -71,7 +74,7 @@ export default function FicheEvenement({
     );
   }
 
-  const origin = typeof location !== 'undefined' ? location.origin : 'https://solidarite-zemoura.web.app';
+  const origin = typeof location !== 'undefined' ? location.origin : 'https://solidarite-zemmoura.fr';
   const url = new URL(eventUrl(ev.slug, lang), origin).href;
   const passe = ev.endAt < Date.now();
   const photos = [...(ev.coverImage ? [ev.coverImage] : []), ...ev.gallery];
