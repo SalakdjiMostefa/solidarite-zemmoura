@@ -58,6 +58,9 @@ export function envoyer(file: File, onProgress: (p: number) => void): Promise<st
     fd.append('file', file);
     fd.append('upload_preset', CLOUDINARY.uploadPreset);
     fd.append('folder', 'solidarite-zemoura');
+    // Nom unique à chaque envoi : sinon le fichier compressé s'appelle « blob », Cloudinary le range
+    // toujours sous solidarite-zemoura/blob et renvoie l'ancienne image (pas d'écrasement en non signé).
+    fd.append('public_id', `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/image/upload`);
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
