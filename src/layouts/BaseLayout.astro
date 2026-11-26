@@ -49,6 +49,11 @@ const polices =
 <html lang={lang} dir={dirOf(lang)}>
   <head>
     <meta charset="utf-8" />
+    <!-- Anciennes adresses Firebase (*.web.app, *.firebaseapp.com) → adresse officielle, même page -->
+    <script is:inline>
+      if (/\.(web\.app|firebaseapp\.com)$/.test(location.hostname) && !location.pathname.startsWith('/__/'))
+        location.replace('https://solidarite-zemmoura.fr' + location.pathname + location.search + location.hash);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={desc} />
