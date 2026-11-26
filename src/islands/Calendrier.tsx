@@ -1,28 +1,27 @@
 /**
- * Bandeau calendrier de l'accueil :
- * date du jour (grégorienne + hégirienne) et compte à rebours vers
- * le prochain événement de l'association, la prochaine fête musulmane et le prochain jour férié en France.
+ * Ligne « dates du jour » de l'accueil :
+ * date grégorienne + hégirienne, prochaine fête musulmane et prochain jour férié en France,
+ * avec « Toutes les dates » dépliable. (Le prochain événement de l'association est dans le hero.)
  * Rendu uniquement dans le navigateur (la date doit être celle du visiteur, pas celle du build).
  */
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { tr, type Lang } from '../i18n';
-import { getPublishedEvents } from '../lib/api';
-import { dateCourte, dateHijri, dateLongue, fetesMusulmanes, joursEntre, joursFeries } from '../lib/calendrier';
-import { eventUrl } from '../lib/labels';
-import type { AssoEvent } from '../lib/types';
+import { dateCourte, dateHijri, fetesMusulmanes, joursFeries } from '../lib/calendrier';
+
+const Sep = () => (
+  <span class="hidden text-encre/25 sm:inline" aria-hidden="true">
+    |
+  </span>
+);
 
 export default function Calendrier({ lang = 'fr' }: { lang?: Lang }) {
   const t = tr(lang).calendrier;
   const [maintenant, setMaintenant] = useState<Date | null>(null);
-  const [evt, setEvt] = useState<AssoEvent | null | undefined>(undefined);
 
   useEffect(() => {
     setMaintenant(new Date());
     // Passage à minuit : on rafraîchit toutes les minutes
     const id = setInterval(() => setMaintenant(new Date()), 60_000);
-    getPublishedEvents()
-      .then((all) => setEvt(all.find((e) => e.endAt >= Date.now()) ?? null))
-      .catch(() => setEvt(null));
     return () => clearInterval(id);
   }, []);
 
@@ -30,76 +29,59 @@ export default function Calendrier({ lang = 'fr' }: { lang?: Lang }) {
   const musulmanes = useMemo(() => (maintenant ? fetesMusulmanes(maintenant) : []), [jour]);
   const feries = useMemo(() => (maintenant ? joursFeries(maintenant) : []), [jour]);
 
-  // Squelette pendant le chargement (évite d'afficher la date du build)
-  if (!maintenant) return <div class="squelette h-40 w-full" aria-hidden="true" />;
+  // Squelette d'une ligne pendant le chargement (évite d'afficher la date du build)
+  if (!maintenant) return <div class="squelette h-12 w-full" aria-hidden="true" />;
 
   const nomMusulman = (cle: string) => t.musulman[cle as keyof typeof t.musulman] ?? cle;
   const nomFerie = (cle: string) => t.feries[cle as keyof typeof t.feries] ?? cle;
   const fm = musulmanes[0];
   const jf = feries[0];
-  const evtJours = evt ? joursEntre(maintenant, new Date(evt.startAt)) : 0;
-  const evtTitre = evt ? (lang === 'ar' && evt.titleAr ? evt.titleAr : evt.title) : '';
 
   return (
-    <div class="carte overflow-hidden">
-      {/* Aujourd'hui */}
-      <div class="flex flex-col gap-1 border-b border-sable/70 px-5 py-4 sm:flex-row sm:items-baseline sm:justify-between sm:px-6">
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-terracotta-fonce">{t.aujourdhui}</p>
-        <p class="font-titre text-lg text-encre first-letter:uppercase sm:text-xl">
-          {dateLongue(maintenant, lang)}
-          <span class="mx-2 text-encre/30" aria-hidden="true">
-            ·
-          </span>
-          <span class="text-encre/70">{dateHijri(maintenant, lang)}</span>
-        </p>
-      </div>
-
-      {/* Les trois prochains rendez-vous */}
-      <div class="grid grid-cols-1 divide-y divide-sable/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0 rtl:sm:divide-x-reverse">
-        <Case
-          titre={t.prochainAsso}
-          nom={evt === undefined ? '…' : evt ? evtTitre : t.aucun}
-          date={evt ? dateCourte(new Date(evt.startAt), lang) : ''}
-          compte={evt ? (evtJours <= 0 ? t.enCours : t.dans(evtJours)) : ''}
-          href={evt ? eventUrl(evt.slug, lang) : undefined}
-        />
-        {fm && <Case titre={t.prochaineFete} nom={nomMusulman(fm.cle)} date={`${dateCourte(fm.date, lang)} · ${dateHijri(fm.date, lang)}`} compte={t.dans(fm.jours)} />}
-        {jf && <Case titre={t.prochainFerie} nom={nomFerie(jf.cle)} date={dateCourte(jf.date, lang)} compte={t.dans(jf.jours)} />}
-      </div>
-
-      {/* Toutes les dates à venir */}
-      <details class="group border-t border-sable/70">
-        <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between px-5 text-sm font-medium text-encre/75 hover:text-encre sm:px-6">
+    <details class="carte group overflow-hidden">
+      <summary class="flex cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-3 text-sm sm:px-5 [&::-webkit-details-marker]:hidden">
+        <span class="flex items-baseline gap-2">
+          <span aria-hidden="true">📅</span>
+          <span class="font-semibold text-encre first-letter:uppercase">{dateCourte(maintenant, lang)}</span>
+          <span class="text-encre/60">{dateHijri(maintenant, lang)}</span>
+        </span>
+        {fm && (
+          <>
+            <Sep />
+            <span class="flex items-baseline gap-1.5" title={`${t.prochaineFete} · ${dateCourte(fm.date, lang)}`}>
+              <span aria-hidden="true">🌙</span>
+              <span class="text-encre">{nomMusulman(fm.cle)}</span>
+              <span class="font-semibold text-terracotta-fonce">{t.dans(fm.jours)}</span>
+            </span>
+          </>
+        )}
+        {jf && (
+          <>
+            <Sep />
+            <span class="flex items-baseline gap-1.5" title={`${t.prochainFerie} · ${dateCourte(jf.date, lang)}`}>
+              <span aria-hidden="true">🇫🇷</span>
+              <span class="text-encre">{nomFerie(jf.cle)}</span>
+              <span class="font-semibold text-terracotta-fonce">{t.dans(jf.jours)}</span>
+            </span>
+          </>
+        )}
+        <span class="ms-auto flex min-h-8 items-center gap-1 font-medium text-encre/70 group-hover:text-encre">
           {t.voirTout}
           <span aria-hidden="true" class="transition group-open:rotate-180">
             ▾
           </span>
-        </summary>
-        <div class="grid grid-cols-1 gap-6 px-5 pb-5 sm:grid-cols-2 sm:px-6">
+        </span>
+      </summary>
+
+      {/* Toutes les dates à venir */}
+      <div class="border-t border-sable/70">
+        <div class="grid grid-cols-1 gap-6 px-4 py-4 sm:grid-cols-2 sm:px-5">
           <Liste titre={t.fetesMusulmanes} items={musulmanes.map((f) => [nomMusulman(f.cle), `${dateCourte(f.date, lang)} · ${dateHijri(f.date, lang)}`, t.dans(f.jours)])} />
           <Liste titre={t.joursFeries} items={feries.map((f) => [nomFerie(f.cle), dateCourte(f.date, lang), t.dans(f.jours)])} />
         </div>
-        <p class="px-5 pb-4 text-xs text-encre/50 sm:px-6">{t.note}</p>
-      </details>
-    </div>
-  );
-}
-
-function Case({ titre, nom, date, compte, href }: { titre: string; nom: string; date: string; compte: string; href?: string }) {
-  const contenu = (
-    <>
-      <p class="text-xs text-encre/55">{titre}</p>
-      <p class="mt-1 font-titre text-lg leading-snug text-encre">{nom}</p>
-      {date && <p class="mt-0.5 text-sm text-encre/60">{date}</p>}
-      {compte && <p class="mt-2 text-sm font-semibold text-terracotta-fonce">{compte}</p>}
-    </>
-  );
-  return href ? (
-    <a href={href} class="block px-5 py-4 transition hover:bg-pierre/60 sm:px-6">
-      {contenu}
-    </a>
-  ) : (
-    <div class="px-5 py-4 sm:px-6">{contenu}</div>
+        <p class="px-4 pb-4 text-xs text-encre/50 sm:px-5">{t.note}</p>
+      </div>
+    </details>
   );
 }
 

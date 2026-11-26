@@ -11,6 +11,7 @@ import PontAnime from '../islands/PontAnime';
 import ProchainsEvenements from '../islands/ProchainsEvenements';
 import Calendrier from '../islands/Calendrier';
 import BoutiqueApercu from '../islands/BoutiqueApercu';
+import ProchainEvenementHero from '../islands/ProchainEvenementHero';
 import ReseauxSociaux from '../components/ReseauxSociaux.astro';
 import { tr, lien, type Lang } from '../i18n';
 
@@ -27,14 +28,20 @@ const L = (p: string) => lien(p, lang);
   <!-- HERO -->
   <section class="relative overflow-hidden">
     <DecorSaison />
-    <div class="conteneur relative z-10 pb-28 pt-16 text-center sm:pb-36 sm:pt-24">
-      <p class="surtitre surtitre-centre">{t.surtitre}</p>
-      <h1 class="mx-auto max-w-3xl text-[2.4rem] font-medium sm:text-6xl">{t.titre}</h1>
-      <p lang={lang === 'fr' ? 'ar' : 'fr'} dir={lang === 'fr' ? 'rtl' : 'ltr'} class="mt-4 text-lg text-encre/55">{t.sousTitre}</p>
-      <p class="lead mx-auto mt-5 max-w-xl">{t.intro}</p>
-      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <a href={L('/don')} class="btn btn-don">{T.commun.donner}</a>
-        <a href={L('/evenements')} class="btn btn-secondaire">{t.nosEvenements}</a>
+    <!-- Téléphone : prochain rendez-vous en haut ; tablette : sous les boutons ; ordinateur : à droite du texte -->
+    <div class="conteneur relative z-10 flex flex-col pb-28 pt-6 text-center sm:pb-36 sm:pt-20 lg:grid lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-12 lg:text-start">
+      <div>
+        <p class="surtitre surtitre-centre lg:justify-start lg:after:hidden">{t.surtitre}</p>
+        <h1 class="mx-auto max-w-3xl text-[2.4rem] font-medium sm:text-6xl lg:mx-0 lg:text-[3.4rem]">{t.titre}</h1>
+        <p lang={lang === 'fr' ? 'ar' : 'fr'} dir={lang === 'fr' ? 'rtl' : 'ltr'} class="mt-4 text-lg text-encre/55 lg:text-start">{t.sousTitre}</p>
+        <p class="lead mx-auto mt-5 max-w-xl lg:mx-0">{t.intro}</p>
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+          <a href={L('/don')} class="btn btn-don">{T.commun.donner}</a>
+          <a href={L('/evenements')} class="btn btn-secondaire">{t.nosEvenements}</a>
+        </div>
+      </div>
+      <div class="order-first mb-6 sm:order-none sm:mb-0 sm:mt-10 lg:mt-0">
+        <ProchainEvenementHero client:load lang={lang} />
       </div>
     </div>
     <Montagnes class="absolute inset-x-0 bottom-0 h-24 sm:h-32" />

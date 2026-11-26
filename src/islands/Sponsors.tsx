@@ -12,13 +12,18 @@ import type { Sponsor } from '../lib/types';
 function Carte({ s, copie }: { s: Sponsor; copie?: boolean }) {
   const contenu = (
     <>
-      <span class="flex h-12 w-[84px] items-center justify-center overflow-hidden rounded-lg border border-sable bg-white sm:h-14 sm:w-24">
-        <img src={cld(s.photo, 300)} alt={copie ? '' : s.name} loading="lazy" decoding="async" class="h-full w-full object-contain" />
-      </span>
-      <span class="max-w-24 truncate text-xs text-encre/70">{s.name}</span>
+      {/* Hauteur fixe, largeur selon la photo : affiche verticale, carré ou logo large restent entiers */}
+      <img
+        src={cld(s.photo, 400)}
+        alt={copie ? '' : s.name}
+        loading="lazy"
+        decoding="async"
+        class="h-14 w-auto max-w-[160px] rounded-md border border-sable bg-white object-contain sm:h-16"
+      />
+      <span class="max-w-[160px] truncate text-xs text-encre/70">{s.name}</span>
     </>
   );
-  const cls = 'flex w-24 shrink-0 flex-col items-center gap-1';
+  const cls = 'flex shrink-0 flex-col items-center gap-1';
   return s.url ? (
     <a href={s.url} target="_blank" rel="noopener sponsored" class={`${cls} hover:opacity-80`} tabIndex={copie ? -1 : undefined}>
       {contenu}
